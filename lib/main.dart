@@ -409,7 +409,15 @@ class _DashboardContentState extends State<DashboardContent> {
             children: [
               Expanded(flex: 2, child: _cardUltimasVentas()),
               const SizedBox(width: 16),
-              Expanded(child: _cardFacturar()),
+              Expanded(
+            child: Column(
+              children: [
+                _cardFacturar(),
+                const SizedBox(height: 16),
+                _cardFrase(),
+              ],
+            ),
+          ),
             ],
           ),
         ],
@@ -576,6 +584,50 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
+
+static const List<String> _frases = [
+    'Lo difícil es empezar. Ya lo hiciste.',
+    'Cada venta es un paso más hacia tu sueño.',
+    'Los grandes negocios empezaron exactamente donde estás vos ahora.',
+    'El esfuerzo de hoy es el éxito de mañana.',
+    'Emprender es creer en vos misma antes que nadie más lo haga.',
+    'No importa cuán despacio vayas, siempre y cuando no te detengas.',
+    'Tu negocio es el reflejo de tu dedicación.',
+    'Cada cliente satisfecho es tu mejor publicidad.',
+    'Lo estás haciendo increíble, aunque a veces no lo parezca.',
+    'El camino del emprendimiento es tuyo y de nadie más.',
+  ];
+
+  Widget _cardFrase() {
+    final frase = _frases[DateTime.now().day % _frases.length];
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E88E5), Color(0xFF1A2744)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.format_quote, color: Colors.white54, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            frase,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _cardFacturar() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -595,14 +647,110 @@ class _DashboardContentState extends State<DashboardContent> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               onPressed: widget.onFacturar,
-              child: const Text(
-                'FACTURAR AHORA',
-                style: TextStyle(color: Colors.white),
+              child: const Text('FACTURAR AHORA', style: TextStyle(color: Colors.white)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: const BorderSide(color: Color(0xFF1E88E5)),
               ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      constraints: const BoxConstraints(maxHeight: 500),
+                      child: Column(
+                        children: [
+                          const Text('Tutorial', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                          const Divider(height: 24),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _TutorialSeccion('VENTAS', [
+                                    ('Nueva Venta', 'Desde aqui realizas todas tus facturas. Selecciona el cliente, agrega los productos y confirma la venta. El sistema calcula el IVA y el vuelto automaticamente.'),
+                                    ('Historial de Ventas', 'Consulta todas las ventas realizadas. Podes filtrar por fecha, reimprimir tickets y anular ventas si es necesario ingresando tu contrasena.'),
+                                    ('Caja', 'Resumen del movimiento del dia. Muestra el total de ventas, cantidad de transacciones y el efectivo en caja.'),
+                                    ('Clientes', 'Gestiona tu cartera de clientes. Podes agregar, editar o eliminar clientes.'),
+                                  ]),
+                                  const SizedBox(height: 16),
+                                  _TutorialSeccion('INVENTARIO', [
+                                    ('Productos', 'Administra tu catalogo de productos y servicios. Podes crear nuevos productos, editar precios, reponer stock o dar de baja unidades danadas o perdidas.'),
+                                    ('Alertas de Stock', 'Visualiza todos los productos que estan por debajo del stock minimo configurado para que puedas reponerlos a tiempo.'),
+                                  ]),
+                                  const SizedBox(height: 16),
+                                  _TutorialSeccion('REPORTES', [
+                                    ('Ventas', 'Analiza tus ventas por periodo con graficos. Identifica tus mejores clientes y los productos mas vendidos.'),
+                                    ('Inventario', 'Consulta el estado actual de tu inventario. Podes generar e imprimir un reporte PDF para toma de inventario fisico.'),
+                                  ]),
+                                  const SizedBox(height: 16),
+                                  _TutorialSeccion('FINANZAS', [
+                                    ('Finanzas', 'Segui la salud financiera de tu negocio. Registra ingresos, gastos y capital inyectado. El sistema calcula automaticamente tu ganancia o perdida del periodo.'),
+                                  ]),
+                                  const SizedBox(height: 16),
+                                  _TutorialSeccion('AJUSTES', [
+                                    ('Ajustes', 'Configura los datos de tu negocio, informacion de factura, timbrado y cambia tu contrasena de acceso.'),
+                                  ]),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E88E5)),
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cerrar', style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('TUTORIAL', style: TextStyle(color: Color(0xFF1E88E5))),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TutorialSeccion extends StatelessWidget {
+  final String titulo;
+  final List<(String, String)> items;
+  const _TutorialSeccion(this.titulo, this.items);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(titulo, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+        const SizedBox(height: 8),
+        ...items.map((item) => Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('• ${item.$1}', style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E88E5))),
+              const SizedBox(height: 2),
+              Text(item.$2, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            ],
+          ),
+        )),
+      ],
     );
   }
 }

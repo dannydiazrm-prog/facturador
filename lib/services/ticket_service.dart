@@ -136,7 +136,7 @@ class TicketService {
             pw.SizedBox(height: 16),
             pw.Divider(),
             pw.SizedBox(height: 8),
-            pw.Center(
+        pw.Center(
               child: pw.Text(
                 '¡Gracias por su compra!',
                 style: pw.TextStyle(
@@ -145,6 +145,19 @@ class TicketService {
                 ),
               ),
             ),
+            if (!tieneFactura) ...[
+              pw.SizedBox(height: 8),
+              pw.Center(
+                child: pw.Text(
+                  'Este comprobante no tiene validez fiscal.',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    fontStyle: pw.FontStyle.italic,
+                    color: PdfColors.grey600,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -279,6 +292,18 @@ class TicketService {
                   fontSize: 10, fontWeight: pw.FontWeight.bold),
               textAlign: pw.TextAlign.center,
             ),
+            if (!tieneFactura) ...[
+              pw.SizedBox(height: 4),
+              pw.Text(
+                'Este comprobante no tiene validez fiscal.',
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey600,
+                ),
+                textAlign: pw.TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),

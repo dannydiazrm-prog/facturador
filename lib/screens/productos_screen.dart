@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/producto.dart';
 import '../services/firestore_service.dart';
 import 'producto_form.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductosScreen extends StatefulWidget {
   const ProductosScreen({super.key});
@@ -32,6 +33,192 @@ class _ProductosScreenState extends State<ProductosScreen> {
     );
   }
 
+  void _mostrarOpciones(Producto p) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(p.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+            const SizedBox(height: 4),
+            Text('Stock actual: ${p.stock}', style: const TextStyle(color: Colors.grey)),
+            const Divider(height: 24),
+            ListTile(
+              leading: const Icon(Icons.edit, color: Color(0xFF1E88E5)),
+              title: const Text('Editar producto'),
+              onTap: () {
+                Navigator.pop(context);
+                _abrirFormulario(producto: p);
+              },
+            ),
+            if (!p.esServicio) ListTile(
+              leading: const Icon(Icons.add_circle, color: Colors.green),
+              title: const Text('Reponer stock'),
+              subtitle: const Text('Registra gasto en Finanzas'),
+              onTap: () {
+                Navigator.pop(context);
+                _dialogReponerStock(p);
+              },
+            ),
+            if (!p.esServicio) ListTile(
+              leading: const Icon(Icons.remove_circle, color: Colors.orange),
+              title: const Text('Dar de baja stock'),
+              subtitle: const Text('Productos dañados o perdidos'),
+              onTap: () {
+                Navigator.pop(context);
+                _dialogBajaStock(p);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Eliminar producto', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _confirmarEliminar(p);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _dialogReponerStock(Producto p) {
+    final cantCtrl = TextEditingController();
+    final costoCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reponer Stock'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: cantCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Cantidad a agregar', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: costoCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Costo total pagado (Gs.)', border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () async {
+              final cant = int.tryParse(cantCtrl.text) ?? 0;
+              final costo = double.tryParse(costoCtrl.text) ?? 0;
+              if (cant <= 0) return;
+              await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
+                'stock': p.stock + cant,
+              });
+              if (costo > 0) {
+                await FirebaseFirestore.instance.collection('gastos').add({
+                  'descripcion': 'Reposición stock: ${p.nombre} ($cant unidades)',
+                  'monto': costo,
+                  'categoria': 'Inventario',
+                  'fecha': DateTime.now().toIso8601String(),
+                  'automatico': true,
+                });
+              }
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Stock actualizado: +$cant unidades'), backgroundColor: Colors.green),
+              );
+            },
+            child: const Text('Reponer', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _dialogBajaStock(Producto p) {
+    final cantCtrl = TextEditingController();
+    final motivoCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Dar de Baja Stock'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: cantCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Cantidad a dar de baja', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: motivoCtrl,
+              decoration: const InputDecoration(labelText: 'Motivo (dañado, perdido, etc.)', border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            onPressed: () async {
+              final cant = int.tryParse(cantCtrl.text) ?? 0;
+              if (cant <= 0 || cant > p.stock) return;
+              final perdida = cant * p.precioCompra;
+              await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
+                'stock': p.stock - cant,
+              });
+              await FirebaseFirestore.instance.collection('gastos').add({
+                'descripcion': 'Baja de stock: ${p.nombre} ($cant unidades) - ${motivoCtrl.text}',
+                'monto': perdida,
+                'categoria': 'Pérdida de inventario',
+                'fecha': DateTime.now().toIso8601String(),
+                'automatico': true,
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Baja registrada: -$cant unidades. Pérdida: Gs. ${perdida.toStringAsFixed(0)}'), backgroundColor: Colors.orange),
+              );
+            },
+            child: const Text('Dar de baja', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmarEliminar(Producto p) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar producto'),
+        content: Text('¿Eliminar "${p.nombre}"? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await FirebaseFirestore.instance.collection('productos').doc(p.id).delete();
+              Navigator.pop(context);
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -39,7 +226,6 @@ class _ProductosScreenState extends State<ProductosScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-                // Header
           pageHeader(
             'PRODUCTOS',
             context,
@@ -47,28 +233,17 @@ class _ProductosScreenState extends State<ProductosScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E88E5),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () => _abrirFormulario(),
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
-                'Nuevo Producto',
-                style: TextStyle(color: Colors.white),
-              ),
+              label: const Text('Nuevo Producto', style: TextStyle(color: Colors.white)),
             ),
           ),
-
           const SizedBox(height: 24),
-
-          // Filtros
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: Column(
               children: [
                 TextField(
@@ -89,27 +264,13 @@ class _ProductosScreenState extends State<ProductosScreen> {
                       child: GestureDetector(
                         onTap: () => setState(() => _tipoFiltro = tipo),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: seleccionado
-                                ? const Color(0xFF1E88E5)
-                                : const Color(0xFFF4F6FA),
+                            color: seleccionado ? const Color(0xFF1E88E5) : const Color(0xFFF4F6FA),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: seleccionado
-                                  ? const Color(0xFF1E88E5)
-                                  : Colors.grey.shade300,
-                            ),
+                            border: Border.all(color: seleccionado ? const Color(0xFF1E88E5) : Colors.grey.shade300),
                           ),
-                          child: Text(
-                            tipo,
-                            style: TextStyle(
-                              color: seleccionado ? Colors.white : Colors.grey,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
+                          child: Text(tipo, style: TextStyle(color: seleccionado ? Colors.white : Colors.grey, fontWeight: FontWeight.w600, fontSize: 13)),
                         ),
                       ),
                     );
@@ -119,158 +280,85 @@ class _ProductosScreenState extends State<ProductosScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Lista de productos
           StreamBuilder<List<Producto>>(
             stream: _service.getProductos(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return Container(
                   padding: const EdgeInsets.all(40),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Column(
-                      children: [
-                        Icon(Icons.inventory_2_outlined,
-                            size: 60, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text(
-                          'No hay productos aún',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Toca "Nuevo Producto" para agregar',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  child: const Center(child: Column(children: [
+                    Icon(Icons.inventory_2_outlined, size: 60, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text('No hay productos aún', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    SizedBox(height: 8),
+                    Text('Toca "Nuevo Producto" para agregar', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                  ])),
                 );
               }
-
               var productos = snapshot.data!;
-
-              // Aplicar filtros
               if (_filtro.isNotEmpty) {
-                productos = productos
-                    .where((p) =>
-                        p.nombre.toLowerCase().contains(_filtro) ||
-                        p.codigo.toLowerCase().contains(_filtro))
-                    .toList();
+                productos = productos.where((p) => p.nombre.toLowerCase().contains(_filtro) || p.codigo.toLowerCase().contains(_filtro)).toList();
               }
               if (_tipoFiltro == 'Productos') {
                 productos = productos.where((p) => !p.esServicio).toList();
               } else if (_tipoFiltro == 'Servicios') {
                 productos = productos.where((p) => p.esServicio).toList();
               }
-
               if (productos.isEmpty) {
                 return Container(
                   padding: const EdgeInsets.all(40),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'No se encontraron resultados',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  child: const Center(child: Text('No se encontraron resultados', style: TextStyle(color: Colors.grey))),
                 );
               }
-
               return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                 child: ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: productos.length,
-                  separatorBuilder: (_, __) =>
-                      const Divider(height: 1, indent: 16, endIndent: 16),
+                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
                   itemBuilder: (context, index) {
                     final p = productos[index];
-                    final alertaStock =
-                        !p.esServicio && p.stock <= p.stockMinimo;
+                    final alertaStock = !p.esServicio && p.stock <= p.stockMinimo;
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       leading: Container(
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: p.esServicio
-                              ? Colors.purple.withOpacity(0.1)
-                              : const Color(0xFF1E88E5).withOpacity(0.1),
+                          color: p.esServicio ? Colors.purple.withOpacity(0.1) : const Color(0xFF1E88E5).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
-                          p.esServicio ? Icons.build : Icons.inventory_2,
-                          color: p.esServicio
-                              ? Colors.purple
-                              : const Color(0xFF1E88E5),
-                          size: 22,
-                        ),
+                        child: Icon(p.esServicio ? Icons.build : Icons.inventory_2, color: p.esServicio ? Colors.purple : const Color(0xFF1E88E5), size: 22),
                       ),
                       title: Row(
                         children: [
-                          Text(
-                            p.nombre,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                          Text(p.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
                           if (alertaStock) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'Stock bajo',
-                                style: TextStyle(
-                                    color: Colors.red, fontSize: 11),
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                              child: const Text('Stock bajo', style: TextStyle(color: Colors.red, fontSize: 11)),
                             ),
                           ],
                         ],
                       ),
-                      subtitle: Text(
-                        'Código: ${p.codigo} | ${p.esServicio ? "Servicio" : "Stock: ${p.stock}"}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
+                      subtitle: Text('Código: ${p.codigo} | ${p.esServicio ? "Servicio" : "Stock: ${p.stock}"}', style: const TextStyle(fontSize: 12)),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            'Gs. ${p.precio.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E88E5),
-                            ),
-                          ),
-                          if (!p.esServicio)
-                            Text(
-                              'Compra: Gs. ${p.precioCompra.toStringAsFixed(0)}',
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
-                            ),
+                          Text('Gs. ${p.precio.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
+                          if (!p.esServicio) Text('Compra: Gs. ${p.precioCompra.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
                         ],
                       ),
-                      onTap: () => _abrirFormulario(producto: p),
+                      onTap: () => _mostrarOpciones(p),
                     );
                   },
                 ),
