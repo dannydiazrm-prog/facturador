@@ -15,6 +15,8 @@ import 'screens/reporte_ventas_screen.dart';
 import 'screens/reporte_inventario_screen.dart';
 import 'screens/finanzas_screen.dart';
 import 'screens/ajustes_screen.dart';
+import 'screens/pedidos_screen.dart';
+import 'screens/pedidos_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
@@ -77,7 +79,7 @@ class _MainLayoutState extends State<MainLayout> {
   bool _sidebarVisible = true;
 
   final Map<String, List<String>> _submenus = {
-    'Ventas': ['Nueva Venta', 'Historial de Ventas', 'Caja', 'Clientes'],
+    'Ventas': ['Nueva Venta', 'Historial de Ventas', 'Pedidos', 'Caja', 'Clientes'],
     'Inventario': ['Productos', 'Alertas de Stock'],
     'Reportes': ['Ventas', 'Inventario'],
     'Finanzas': [],
@@ -216,6 +218,8 @@ final Map<String, IconData> _iconos = {
         return const ProductosScreen();
       case 'Clientes':
         return const ClientesScreen();
+      case 'Pedidos':
+        return const PedidosScreen();
       case 'Alertas de Stock':
         return const AlertasStockScreen();
       case 'Ventas':
@@ -407,7 +411,13 @@ class _DashboardContentState extends State<DashboardContent> {
         Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(flex: 2, child: _cardUltimasVentas()),
+              Expanded(flex: 2, child: Column(
+                children: [
+                  _cardUltimasVentas(),
+                  const SizedBox(height: 16),
+                  _cardPedidos(),
+                ],
+              )),
               const SizedBox(width: 16),
               Expanded(
             child: Column(
@@ -499,7 +509,7 @@ class _DashboardContentState extends State<DashboardContent> {
             stream: FirebaseFirestore.instance
                 .collection('ventas')
                 .orderBy('fecha', descending: true)
-                .limit(5)
+                .limit(3)
                 .snapshots(),
             builder: (context, snap) {
               if (!snap.hasData || snap.data!.docs.isEmpty) {
@@ -598,6 +608,178 @@ static const List<String> _frases = [
     'El camino del emprendimiento es tuyo y de nadie más.',
   ];
 
+Widget _cardPedidos() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.assignment, color: Color(0xFF1E88E5), size: 20),
+              SizedBox(width: 8),
+              Text('Pedidos activos', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+            ],
+          ),
+          const Divider(height: 16),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('pedidos')
+                .orderBy('fechaEntrega')
+                .snapshots(),
+            builder: (context, snap) {
+              if (!snap.hasData || snap.data!.docs.isEmpty) {
+                return const Text('Sin pedidos pendientes', style: TextStyle(color: Colors.grey, fontSize: 13));
+              }
+              final pedidos = snap.data!.docs
+                  .where((doc) => (doc.data() as Map<String, dynamic>)['estado'] != 'entregado')
+                  .take(3)
+                  .toList();
+              if (pedidos.isEmpty) {
+                return const Text('Sin pedidos pendientes', style: TextStyle(color: Colors.grey, fontSize: 13));
+              }
+              return Column(
+                children: pedidos.map((doc) {
+                  final p = doc.data() as Map<String, dynamic>;
+                  final fecha = DateTime.parse(p['fechaEntrega']);
+                  final vencido = fecha.isBefore(DateTime.now());
+                  final estado = p['estado'] ?? 'pendiente';
+                  Color colorEstado;
+                  String textoEstado;
+                  switch (estado) {
+                    case 'en_proceso': colorEstado = Colors.blue; textoEstado = 'En proceso'; break;
+                    case 'listo': colorEstado = Colors.green; textoEstado = 'Listo'; break;
+                    default: colorEstado = Colors.orange; textoEstado = 'Pendiente';
+                  }
+                  return GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(p['clienteNombre'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                              const SizedBox(height: 4),
+                              Text('Entrega: ${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(color: Colors.grey)),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(color: colorEstado.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                                child: Text(textoEstado, style: TextStyle(color: colorEstado, fontWeight: FontWeight.bold)),
+                              ),
+                              const Divider(height: 24),
+                              const Text('Cambiar estado:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  _chipEstado(doc.id, 'pendiente', 'Pendiente', Colors.orange, estado),
+                                  _chipEstado(doc.id, 'en_proceso', 'En proceso', Colors.blue, estado),
+                                  _chipEstado(doc.id, 'listo', 'Listo', Colors.green, estado),
+                                  _chipEstadoEntregado(doc.id, context),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: colorEstado.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: colorEstado.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(p['clienteNombre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13), overflow: TextOverflow.ellipsis),
+                                Text(textoEstado, style: TextStyle(fontSize: 11, color: colorEstado)),
+                              ],
+                            ),
+                          ),
+                          Text('${fecha.day}/${fecha.month}/${fecha.year}',
+                              style: TextStyle(fontSize: 11, color: vencido ? Colors.red : Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chipEstado(String id, String estado, String texto, Color color, String estadoActual) {
+    final seleccionado = estadoActual == estado;
+    return GestureDetector(
+      onTap: () async {
+        await FirebaseFirestore.instance.collection('pedidos').doc(id).update({'estado': estado});
+        Navigator.pop(context);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: seleccionado ? color : color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(texto, style: TextStyle(color: seleccionado ? Colors.white : color, fontWeight: FontWeight.bold, fontSize: 12)),
+      ),
+    );
+  }
+
+  Widget _chipEstadoEntregado(String id, BuildContext ctx) {
+    return GestureDetector(
+      onTap: () async {
+        final confirmar = await showDialog<bool>(
+          context: ctx,
+          builder: (context) => AlertDialog(
+            title: const Text('Marcar como entregado'),
+            content: const Text('El pedido se eliminará al marcarlo como entregado. ¿Continuar?'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirmar', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+        if (confirmar == true) {
+          await FirebaseFirestore.instance.collection('pedidos').doc(id).delete();
+          Navigator.pop(ctx);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(color: Colors.grey.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+        child: const Text('Entregado', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+      ),
+    );
+  }
+  
   Widget _cardFrase() {
     final frase = _frases[DateTime.now().day % _frases.length];
     return Container(
