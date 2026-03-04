@@ -80,20 +80,40 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
       final index = _items.indexWhere((i) => i.productoId == producto.id);
       if (index >= 0) {
         final item = _items[index];
+        if (!producto.esServicio && item.cantidad >= producto.stock) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Stock insuficiente. Disponible: ${producto.stock}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
         _items[index] = ItemVenta(
           productoId: item.productoId,
           codigo: item.codigo,
           nombre: item.nombre,
           cantidad: item.cantidad + 1,
           precioUnitario: item.precioUnitario,
+          stockDisponible: producto.stock,
         );
       } else {
+        if (!producto.esServicio && producto.stock <= 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Este producto no tiene stock disponible'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
         _items.add(ItemVenta(
           productoId: producto.id,
           codigo: producto.codigo,
           nombre: producto.nombre,
           cantidad: 1,
           precioUnitario: producto.precio,
+          stockDisponible: producto.stock,
         ));
       }
       _productosFiltrados = [];
@@ -102,17 +122,27 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
   }
 
   void _actualizarCantidad(int index, int cantidad) {
+    final item = _items[index];
+    if (cantidad > item.stockDisponible && item.stockDisponible > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Stock insuficiente. Disponible: ${item.stockDisponible}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     setState(() {
       if (cantidad <= 0) {
         _items.removeAt(index);
       } else {
-        final item = _items[index];
         _items[index] = ItemVenta(
           productoId: item.productoId,
           codigo: item.codigo,
           nombre: item.nombre,
           cantidad: cantidad,
           precioUnitario: item.precioUnitario,
+          stockDisponible: item.stockDisponible,
         );
       }
     });

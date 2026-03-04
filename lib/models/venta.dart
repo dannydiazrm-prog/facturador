@@ -5,6 +5,7 @@ class ItemVenta {
   int cantidad;
   double precioUnitario;
   double subtotal;
+  int stockDisponible;
 
   ItemVenta({
     required this.productoId,
@@ -12,6 +13,7 @@ class ItemVenta {
     required this.nombre,
     required this.cantidad,
     required this.precioUnitario,
+    this.stockDisponible = 0,
   }) : subtotal = cantidad * precioUnitario;
 
   Map<String, dynamic> toMap() {

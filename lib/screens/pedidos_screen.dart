@@ -217,10 +217,25 @@ class _PedidosScreenState extends State<PedidosScreen> {
                         };
                         if (pedido == null) {
                           await FirebaseFirestore.instance.collection('pedidos').add(data);
+                          final nuevoPedido = Pedido(
+                            id: '',
+                            clienteNombre: clienteCtrl.text,
+                            items: items.map((item) => ItemPedido(
+                              descripcion: item['descCtrl'].text,
+                              cantidad: int.tryParse(item['cantCtrl'].text) ?? 1,
+                              precio: double.tryParse(item['precioCtrl'].text) ?? 0,
+                            )).toList(),
+                            adelanto: double.tryParse(adelantoCtrl.text) ?? 0,
+                            fechaEntrega: fechaEntrega,
+                            estado: 'pendiente',
+                            fechaCreacion: DateTime.now(),
+                          );
+                          Navigator.pop(context);
+                          await _imprimirPedido(nuevoPedido, 'ticket');
                         } else {
                           await FirebaseFirestore.instance.collection('pedidos').doc(pedido.id).update(data);
+                          Navigator.pop(context);
                         }
-                        Navigator.pop(context);
                       },
                       child: Text(pedido == null ? 'Guardar Pedido' : 'Actualizar',
                           style: const TextStyle(color: Colors.white)),
