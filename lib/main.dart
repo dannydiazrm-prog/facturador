@@ -191,8 +191,9 @@ class _MainLayoutState extends State<MainLayout> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: isMobile ? Drawer(child: _buildSidebar()) : null,
-        body: Row(
-          children: [
+       body: SafeArea(
+        child: Row(
+        children: [
             if (!isMobile && _sidebarVisible)
               _buildSidebar(),
             Expanded(
@@ -227,6 +228,7 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
       ),
+	  ),
     );
   }
 

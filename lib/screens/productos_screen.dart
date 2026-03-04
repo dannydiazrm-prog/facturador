@@ -199,7 +199,27 @@ class _ProductosScreenState extends State<ProductosScreen> {
     );
   }
 
-  void _confirmarEliminar(Producto p) {
+  void _confirmarEliminar(Producto p) async {
+    final ventas = await FirebaseFirestore.instance
+        .collection('ventas')
+        .where('items', arrayContains: {'productoId': p.id})
+        .limit(1)
+        .get();
+
+    if (!p.esServicio && p.stock > 0) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('No se puede eliminar'),
+          content: Text('"${p.nombre}" todavía tiene ${p.stock} unidades en stock. Dalo de baja primero.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Entendido')),
+          ],
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

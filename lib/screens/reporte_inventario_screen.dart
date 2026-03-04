@@ -433,7 +433,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () => _generarPDF(productos, valorTotal),
+                  onPressed: () => _generarPDF(productos.where((p) => !p.esServicio).toList(), valorTotal),
                   icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
                   label: const Text(
                     'Toma de Inventario',
