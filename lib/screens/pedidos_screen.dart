@@ -68,6 +68,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
             ),
             padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom.clamp(0.0, double.infinity) + 24),
             child: SingleChildScrollView(
+      padding: Responsive.pagePadding(context),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,9 +417,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const Responsive.pagePadding(context),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

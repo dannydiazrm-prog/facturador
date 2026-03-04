@@ -100,6 +100,7 @@ void _guardar() async {
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
+      padding: Responsive.pagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

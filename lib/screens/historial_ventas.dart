@@ -58,9 +58,7 @@ class _HistorialVentasScreenState extends State<HistorialVentasScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const Responsive.pagePadding(context),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -411,6 +409,7 @@ try {
       ),
       padding: const EdgeInsets.all(24),
       child: SingleChildScrollView(
+      padding: Responsive.pagePadding(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

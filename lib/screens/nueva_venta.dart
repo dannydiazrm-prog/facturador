@@ -241,9 +241,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
     final esMostrador = _clienteSeleccionado.rucCi == '1';
 
     return SingleChildScrollView(
-      padding: const Responsive.pagePadding(context),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

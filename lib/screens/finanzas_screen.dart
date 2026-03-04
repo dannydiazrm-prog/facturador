@@ -442,9 +442,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                     'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
                 return SingleChildScrollView(
-                  padding: const Responsive.pagePadding(context),
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                  padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

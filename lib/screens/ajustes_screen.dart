@@ -163,9 +163,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
     }
 
     return SingleChildScrollView(
-      padding: const Responsive.pagePadding(context),
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
       child: Form(
         key: _formKey,
         child: Column(

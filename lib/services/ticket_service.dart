@@ -93,8 +93,7 @@ class TicketService {
               },
               children: [
                 pw.TableRow(
-                  decoration: const pw.BoxDecoration(
-                      color: PdfColors.grey200),
+                  decoration: const pw.BoxDecoration(color: PdfColors.grey200),
                   children: [
                     _celdaHeader('Descripción'),
                     _celdaHeader('Cant.'),
@@ -102,8 +101,7 @@ class TicketService {
                     _celdaHeader('Subtotal'),
                   ],
                 ),
-                ...(venta['items'] as List<dynamic>).map((item) =>
-                    pw.TableRow(
+                ...(venta['items'] as List<dynamic>).map((item) => pw.TableRow(
                       children: [
                         _celda(item['nombre'] ?? ''),
                         _celda('${item['cantidad']}'),
@@ -136,7 +134,7 @@ class TicketService {
             pw.SizedBox(height: 16),
             pw.Divider(),
             pw.SizedBox(height: 8),
-        pw.Center(
+            pw.Center(
               child: pw.Text(
                 '¡Gracias por su compra!',
                 style: pw.TextStyle(
@@ -185,11 +183,9 @@ class TicketService {
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
-            // Header
             pw.Text(
               ajustes['nombreEmpresa'] ?? 'Sin nombre',
-              style: pw.TextStyle(
-                  fontSize: 14, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
               textAlign: pw.TextAlign.center,
             ),
             if (ajustes['direccion'] != null &&
@@ -202,17 +198,14 @@ class TicketService {
               pw.Text('Tel: ${ajustes['telefono']}',
                   style: const pw.TextStyle(fontSize: 9),
                   textAlign: pw.TextAlign.center),
-            if (ajustes['ruc'] != null &&
-                ajustes['ruc'].toString().isNotEmpty)
+            if (ajustes['ruc'] != null && ajustes['ruc'].toString().isNotEmpty)
               pw.Text('RUC: ${ajustes['ruc']}',
                   style: const pw.TextStyle(fontSize: 9),
                   textAlign: pw.TextAlign.center),
             pw.SizedBox(height: 6),
-                style: const pw.TextStyle(fontSize: 9)),
             pw.Text(
               tieneFactura ? 'FACTURA' : 'COMPROBANTE DE VENTA',
-              style: pw.TextStyle(
-                  fontSize: 12, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
             ),
             if (tieneFactura) ...[
               pw.Text('Timbrado: ${ajustes['timbrado']}',
@@ -222,19 +215,13 @@ class TicketService {
                 pw.Text('Nº: ${ajustes['nroFactura']}',
                     style: const pw.TextStyle(fontSize: 9)),
             ],
-                style: const pw.TextStyle(fontSize: 9)),
             pw.SizedBox(height: 4),
-
-            // Datos
             _ticketFila('Fecha:', _formatearFecha(venta['fecha'])),
             _ticketFila('Cliente:', venta['clienteNombre'] ?? ''),
             _ticketFila('RUC/CI:', venta['clienteRucCi'] ?? ''),
             pw.Text('--------------------------------',
                 style: const pw.TextStyle(fontSize: 9)),
-
-            // Items
-            ...(venta['items'] as List<dynamic>).map((item) =>
-                pw.Column(
+            ...(venta['items'] as List<dynamic>).map((item) => pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
@@ -243,8 +230,7 @@ class TicketService {
                           fontSize: 9, fontWeight: pw.FontWeight.bold),
                     ),
                     pw.Row(
-                      mainAxisAlignment:
-                          pw.MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text(
                             '  ${item['cantidad']} x Gs. ${(item['precioUnitario'] ?? 0).toStringAsFixed(0)}',
@@ -258,8 +244,6 @@ class TicketService {
                 )),
             pw.Text('--------------------------------',
                 style: const pw.TextStyle(fontSize: 9)),
-
-            // Totales
             if (tieneFactura) ...[
               _ticketFila('Subtotal:',
                   'Gs. ${(venta['subtotal'] ?? 0).toStringAsFixed(0)}'),
@@ -272,8 +256,7 @@ class TicketService {
                 pw.Text('TOTAL:',
                     style: pw.TextStyle(
                         fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                pw.Text(
-                    'Gs. ${(venta['total'] ?? 0).toStringAsFixed(0)}',
+                pw.Text('Gs. ${(venta['total'] ?? 0).toStringAsFixed(0)}',
                     style: pw.TextStyle(
                         fontSize: 11, fontWeight: pw.FontWeight.bold)),
               ],
@@ -282,11 +265,10 @@ class TicketService {
                 'Gs. ${(venta['montoPagado'] ?? 0).toStringAsFixed(0)}'),
             _ticketFila('Vuelto:',
                 'Gs. ${(venta['vuelto'] ?? 0).toStringAsFixed(0)}'),
-                style: const pw.TextStyle(fontSize: 9)),
+            pw.SizedBox(height: 6),
             pw.Text(
               '¡Gracias por su compra!',
-              style: pw.TextStyle(
-                  fontSize: 10, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
               textAlign: pw.TextAlign.center,
             ),
             if (!tieneFactura) ...[
@@ -313,8 +295,12 @@ class TicketService {
 
   static String _formatearFecha(String? fechaStr) {
     if (fechaStr == null) return '';
-    final fecha = DateTime.parse(fechaStr);
-    return '${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute.toString().padLeft(2, '0')}';
+    try {
+      final fecha = DateTime.parse(fechaStr);
+      return '${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour}:${fecha.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return fechaStr;
+    }
   }
 
   static pw.Widget _filaDato(String label, String valor) {
@@ -323,8 +309,7 @@ class TicketService {
       child: pw.Row(
         children: [
           pw.Text(label,
-              style: pw.TextStyle(
-                  fontSize: 11, fontWeight: pw.FontWeight.bold)),
+              style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(width: 8),
           pw.Text(valor, style: const pw.TextStyle(fontSize: 11)),
         ],
@@ -347,11 +332,9 @@ class TicketService {
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
         pw.Text(label,
-            style: pw.TextStyle(
-                fontSize: 13, fontWeight: pw.FontWeight.bold)),
+            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
         pw.Text(valor,
-            style: pw.TextStyle(
-                fontSize: 13, fontWeight: pw.FontWeight.bold)),
+            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
       ],
     );
   }
@@ -370,8 +353,7 @@ class TicketService {
     return pw.Padding(
       padding: const pw.EdgeInsets.all(6),
       child: pw.Text(texto,
-          style: pw.TextStyle(
-              fontSize: 10, fontWeight: pw.FontWeight.bold)),
+          style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
     );
   }
 

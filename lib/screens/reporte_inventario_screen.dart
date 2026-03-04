@@ -416,9 +416,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
         final sinMovimiento = todos.where((p) => !p.esServicio).length;
 
         return SingleChildScrollView(
-          padding: const Responsive.pagePadding(context),
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-          padding: const Responsive.pagePadding(context),
+      padding: Responsive.pagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
