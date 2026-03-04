@@ -15,6 +15,26 @@ class PedidosScreen extends StatefulWidget {
 }
 
 class _PedidosScreenState extends State<PedidosScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _limpiarEntregados();
+  }
+
+  Future<void> _limpiarEntregados() async {
+    final ayer = DateTime.now().subtract(const Duration(days: 1));
+    final snap = await FirebaseFirestore.instance
+        .collection('pedidos')
+        .where('estado', isEqualTo: 'entregado')
+        .get();
+    for (final doc in snap.docs) {
+      final fecha = DateTime.parse(doc['fechaCreacion']);
+      if (fecha.isBefore(ayer)) {
+        await doc.reference.delete();
+      }
+    }
+  }
+
   Color _colorEstado(String estado) {
     switch (estado) {
       case 'en_proceso': return Colors.blue;
@@ -68,7 +88,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
             ),
             padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom.clamp(0.0, double.infinity) + 24),
             child: SingleChildScrollView(
-      padding: Responsive.pagePadding(context),
+              padding: Responsive.pagePadding(context),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +213,6 @@ class _PedidosScreenState extends State<PedidosScreen> {
                       ),
                     ],
                   ),
-                  
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -251,6 +270,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
       ),
     );
   }
+
 
   Future<void> _imprimirPedido(Pedido pedido, String formato) async {
     final pdf = pw.Document();
@@ -347,6 +367,31 @@ class _PedidosScreenState extends State<PedidosScreen> {
               leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
               title: const Text('Imprimir A4'),
               onTap: () { Navigator.pop(context); _imprimirPedido(pedido, 'a4'); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Eliminar pedido', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Eliminar pedido'),
+                    content: Text('¿Eliminar este pedido?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        onPressed: () async {
+                          await FirebaseFirestore.instance.collection('pedidos').doc(pedido.id).delete();
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Eliminar', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const Text('Cambiar estado:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
             const SizedBox(height: 8),
