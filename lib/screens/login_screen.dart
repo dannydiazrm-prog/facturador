@@ -50,11 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0xFF1A2744),
       body: Center(
         child: SingleChildScrollView(
-      padding: Responsive.pagePadding(context),
           padding: const EdgeInsets.all(32),
+      padding: Responsive.pagePadding(context),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
