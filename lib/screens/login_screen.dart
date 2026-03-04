@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _error = e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential'
+        _error = (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential')
             ? 'Correo o contraseña incorrectos'
             : 'Error al iniciar sesión. Intenta de nuevo.';
       });
@@ -50,9 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0xFF1A2744),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-      padding: Responsive.pagePadding(context),
+          padding: Responsive.pagePadding(context), // <--- SOLUCIONADO: Solo uno y sin const
           child: Container(
+            padding: const EdgeInsets.all(24), // Añadimos un padding interno al contenedor blanco
             constraints: const BoxConstraints(maxWidth: 400),
             decoration: BoxDecoration(
               color: Colors.white,
