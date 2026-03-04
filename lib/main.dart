@@ -1,4 +1,5 @@
 import 'widgets/responsive.dart';
+import 'widgets/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -362,7 +363,7 @@ Widget pageHeader(String titulo, BuildContext context) {
       ),
     );
   }
-
+}
 class DashboardContent extends StatefulWidget {
   final VoidCallback onFacturar;
   const DashboardContent({super.key, required this.onFacturar});
