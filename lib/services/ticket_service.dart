@@ -208,7 +208,6 @@ class TicketService {
                   style: const pw.TextStyle(fontSize: 9),
                   textAlign: pw.TextAlign.center),
             pw.SizedBox(height: 6),
-            pw.Text('================================',
                 style: const pw.TextStyle(fontSize: 9)),
             pw.Text(
               tieneFactura ? 'FACTURA' : 'COMPROBANTE DE VENTA',
@@ -223,7 +222,6 @@ class TicketService {
                 pw.Text('Nº: ${ajustes['nroFactura']}',
                     style: const pw.TextStyle(fontSize: 9)),
             ],
-            pw.Text('================================',
                 style: const pw.TextStyle(fontSize: 9)),
             pw.SizedBox(height: 4),
 
@@ -284,7 +282,6 @@ class TicketService {
                 'Gs. ${(venta['montoPagado'] ?? 0).toStringAsFixed(0)}'),
             _ticketFila('Vuelto:',
                 'Gs. ${(venta['vuelto'] ?? 0).toStringAsFixed(0)}'),
-            pw.Text('================================',
                 style: const pw.TextStyle(fontSize: 9)),
             pw.Text(
               '¡Gracias por su compra!',

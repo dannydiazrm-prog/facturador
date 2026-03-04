@@ -223,15 +223,9 @@ class _ProductosScreenState extends State<ProductosScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-<<<<<<< HEAD
       padding: const Responsive.pagePadding(context),
-=======
-<<<<<<< HEAD
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-=======
       padding: const Responsive.pagePadding(context),
->>>>>>> responsive dashboard y padding
->>>>>>> 2d434a4... fix build apk workflow
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
