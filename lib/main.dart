@@ -1,5 +1,6 @@
 import 'widgets/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -99,7 +100,7 @@ class _MainLayoutState extends State<MainLayout> {
     'Ajustes': [],
   };
   
-final Map<String, IconData> _iconos = {
+  final Map<String, IconData> _iconos = {
     'Dashboard': Icons.dashboard,
     'Ventas': Icons.receipt,
     'Inventario': Icons.inventory,
@@ -110,7 +111,7 @@ final Map<String, IconData> _iconos = {
 
   void _toggleSidebar() => setState(() => _sidebarVisible = !_sidebarVisible);
 
-Widget _buildSidebar() {
+  Widget _buildSidebar() {
     return Container(
       width: 230,
       color: const Color(0xFF1A2744),
