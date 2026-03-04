@@ -22,11 +22,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Esto arregla el Punto 1: Pantalla completa solo en Android
+  if (ThemeData().platform == TargetPlatform.android) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -163,48 +175,59 @@ Widget _buildSidebar() {
     );
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      drawer: isMobile ? Drawer(child: _buildSidebar()) : null,
-      body: Row(
-        children: [
-          if (!isMobile && _sidebarVisible)
-            _buildSidebar(),
-             
-          Expanded(
-            child: Container(
-              color: const Color(0xFFF4F6FA),
-              child: Stack(
-                children: [
-                  _buildPagina(),
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: IconButton(
-                        icon: const Icon(Icons.menu, color: Color(0xFF1A2744)),
-                        onPressed: () {
-  if (MediaQuery.of(context).size.width < 600) {
-    Scaffold.of(context).openDrawer();
-  } else {
-    _toggleSidebar();
-  }
-},
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_paginaActual != 'Dashboard') {
+          setState(() => _paginaActual = 'Dashboard');
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        drawer: isMobile ? Drawer(child: _buildSidebar()) : null,
+        body: Row(
+          children: [
+            if (!isMobile && _sidebarVisible)
+              _buildSidebar(),
+            Expanded(
+              child: Container(
+                color: const Color(0xFFF4F6FA),
+                child: Stack(
+                  children: [
+                    _buildPagina(),
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Builder(
+                          builder: (context) => IconButton(
+                            icon: const Icon(Icons.menu, color: Color(0xFF1A2744)),
+                            onPressed: () {
+                              if (MediaQuery.of(context).size.width < 600) {
+                                Scaffold.of(context).openDrawer();
+                              } else {
+                                _toggleSidebar();
+                              }
+                            },
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _buildPagina() {
     switch (_paginaActual) {
@@ -250,7 +273,7 @@ Widget _buildSidebar() {
 
 
   
-  Widget _menuSimple(String nombre) {
+    Widget _menuSimple(String nombre) {
     final activo = _paginaActual == nombre;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
@@ -263,7 +286,12 @@ Widget _buildSidebar() {
       child: ListTile(
         leading: Icon(_iconos[nombre], color: Colors.white),
         title: Text(nombre, style: const TextStyle(color: Colors.white)),
-        onTap: () => setState(() => _paginaActual = nombre),
+        onTap: () {
+          if (MediaQuery.of(context).size.width < 600) {
+            Navigator.pop(context);
+          }
+          setState(() => _paginaActual = nombre);
+        },
       ),
     );
   }
@@ -292,13 +320,17 @@ Widget _buildSidebar() {
                 fontSize: 13,
               ),
             ),
-            onTap: () => setState(() => _paginaActual = sub),
+            onTap: () {
+              if (MediaQuery.of(context).size.width < 600) {
+                Navigator.pop(context);
+              }
+              setState(() => _paginaActual = sub);
+            },
           );
         }).toList(),
       ),
     );
   }
-}
 
 Widget pageHeader(String titulo, BuildContext context) {
     final now = DateTime.now();
