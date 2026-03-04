@@ -187,7 +187,13 @@ Widget _buildSidebar() {
                       color: Colors.transparent,
                       child: IconButton(
                         icon: const Icon(Icons.menu, color: Color(0xFF1A2744)),
-                        onPressed: _toggleSidebar,
+                        onPressed: () {
+  if (MediaQuery.of(context).size.width < 600) {
+    Scaffold.of(context).openDrawer();
+  } else {
+    _toggleSidebar();
+  }
+},
                       ),
                     ),
                   ),
