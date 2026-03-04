@@ -442,7 +442,15 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                     'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
                 return SingleChildScrollView(
+<<<<<<< HEAD
                   padding: const Responsive.pagePadding(context),
+=======
+<<<<<<< HEAD
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+=======
+                  padding: const Responsive.pagePadding(context),
+>>>>>>> responsive dashboard y padding
+>>>>>>> 2d434a4... fix build apk workflow
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
