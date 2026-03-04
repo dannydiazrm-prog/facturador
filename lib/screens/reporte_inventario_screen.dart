@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -415,7 +416,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
         final sinMovimiento = todos.where((p) => !p.esServicio).length;
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+          padding: const Responsive.pagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

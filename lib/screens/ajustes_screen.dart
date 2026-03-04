@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -162,7 +163,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+      padding: const Responsive.pagePadding(context),
       child: Form(
         key: _formKey,
         child: Column(

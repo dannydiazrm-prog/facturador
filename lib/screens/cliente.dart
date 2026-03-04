@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 class Cliente {
   String id;
   String nombre;

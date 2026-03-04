@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import "package:firebase_auth/firebase_auth.dart";
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,7 +58,7 @@ class _HistorialVentasScreenState extends State<HistorialVentasScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+      padding: const Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

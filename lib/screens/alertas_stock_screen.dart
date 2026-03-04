@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
@@ -28,7 +29,7 @@ class AlertasStockScreen extends StatelessWidget {
         alertas.sort((a, b) => a.stock.compareTo(b.stock));
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+          padding: const Responsive.pagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
@@ -222,7 +223,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+      padding: const Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

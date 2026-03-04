@@ -1,3 +1,4 @@
+import 'widgets/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -97,85 +98,82 @@ final Map<String, IconData> _iconos = {
 
   void _toggleSidebar() => setState(() => _sidebarVisible = !_sidebarVisible);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Row(
-        children: [
-          if (_sidebarVisible)
-            Container(
-              width: 230,
-              color: const Color(0xFF1A2744),
-              child: SingleChildScrollView(
-                child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/IMG-20260228-WA0018.jpg',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'ADMINISTRADOR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const Text(
-                    'Gestión e Inventario',
-                    style: TextStyle(color: Colors.white54, fontSize: 11),
-                  ),
-                  const SizedBox(height: 20),
-                  _menuSimple('Dashboard'),
-                  ..._submenus.keys.map((nombre) =>
-                    _submenus[nombre]!.isEmpty
-                      ? _menuSimple(nombre)
-                      : _menuDesplegable(nombre),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12),
-                    child: IconButton(
-                      icon: const Icon(Icons.logout, color: Colors.white70, size: 28),
-                      tooltip: 'Cerrar sesión',
-                      onPressed: () async {
-                        final confirmar = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Cerrar sesión'),
-                            content: const Text('¿Estás seguro que deseas cerrar sesión?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancelar'),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                        );
-                        if (confirmar == true) {
-                          await FirebaseAuth.instance.signOut();
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                ),
+Widget _buildSidebar() {
+    return Container(
+      width: 230,
+      color: const Color(0xFF1A2744),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                'assets/IMG-20260228-WA0018.jpg',
+                width: 80,
+                height: 80,
+                fit: BoxFit.contain,
               ),
             ),
+            const SizedBox(height: 10),
+            const Text('ADMINISTRADOR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text('Gestión e Inventario', style: TextStyle(color: Colors.white54, fontSize: 11)),
+            const SizedBox(height: 20),
+            _menuSimple('Dashboard'),
+            ..._submenus.keys.map((nombre) =>
+              _submenus[nombre]!.isEmpty
+                ? _menuSimple(nombre)
+                : _menuDesplegable(nombre),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              child: IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white70, size: 28),
+                tooltip: 'Cerrar sesión',
+                onPressed: () async {
+                  final confirmar = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Cerrar sesión'),
+                      content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmar == true) {
+                    await FirebaseAuth.instance.signOut();
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      drawer: isMobile ? Drawer(child: _buildSidebar()) : null,
+      body: Row(
+        children: [
+          if (!isMobile && _sidebarVisible)
+            _buildSidebar(),
+             
           Expanded(
             child: Container(
               color: const Color(0xFFF4F6FA),
@@ -392,23 +390,43 @@ class _DashboardContentState extends State<DashboardContent> {
   Widget build(BuildContext context) {
     final now = DateTime.now();
 
+    final isMobile = MediaQuery.of(context).size.width < 700;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(56, 24, 24, 24),
+      padding: Responsive.pagePadding(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           pageHeader('BIENVENIDO BN24py', context),
-          Row(
-            children: [
-              Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0)}', Icons.trending_up, Colors.blue)),
-              const SizedBox(width: 16),
-              Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange)),
-              const SizedBox(width: 16),
-              Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple)),
-            ],
-          ),
+          isMobile
+            ? Column(children: [
+                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0)}', Icons.trending_up, Colors.blue),
+                const SizedBox(height: 8),
+                _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange),
+                const SizedBox(height: 8),
+                _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple),
+              ])
+            : Row(children: [
+                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0)}', Icons.trending_up, Colors.blue)),
+                const SizedBox(width: 16),
+                Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange)),
+                const SizedBox(width: 16),
+                Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple)),
+              ]),
           const SizedBox(height: 24),
-        Row(
+        isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _cardUltimasVentas(),
+                const SizedBox(height: 16),
+                _cardPedidos(),
+                const SizedBox(height: 16),
+                _cardFacturar(),
+                const SizedBox(height: 16),
+                _cardFrase(),
+              ],
+            )
+          : Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 2, child: Column(
