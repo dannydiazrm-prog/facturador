@@ -15,7 +15,7 @@ class Responsive {
 
   static EdgeInsets pagePadding(BuildContext context) {
     if (isMobile(context)) {
-      return const EdgeInsets.fromLTRB(56, 24, 16, 80);
+      return const EdgeInsets.fromLTRB(16, 60, 16, 80);
     }
     return const EdgeInsets.fromLTRB(32, 24, 32, 24);
   }
