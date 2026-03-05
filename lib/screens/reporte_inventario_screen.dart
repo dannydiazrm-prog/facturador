@@ -266,7 +266,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
             children: [
               pw.Text('Total productos: ${productos.length}'),
               pw.Text(
-                'Valor total inventario: Gs. ${valorTotal.toStringAsFixed(0)}',
+                'Valor total inventario: Gs. ${valorTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               ),
             ],
@@ -360,13 +360,13 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                       child: pw.Text(
                           p.esServicio
                               ? '-'
-                              : 'Gs. ${p.precioCompra.toStringAsFixed(0)}',
+                              : 'Gs. ${p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                           style: const pw.TextStyle(fontSize: 9)),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(6),
                       child: pw.Text(
-                          'Gs. ${p.precio.toStringAsFixed(0)}',
+                          'Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                           style: const pw.TextStyle(fontSize: 9)),
                     ),
                   ],
@@ -400,11 +400,16 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
             p.nombre.toLowerCase().contains(_filtro) ||
             p.codigo.toLowerCase().contains(_filtro)).toList();
 
-        // Filtrar por stock
+        /// Filtrar por stock
         if (_filtroStock == 'Con stock') {
           productos = productos.where((p) => p.esServicio || p.stock > 0).toList();
         } else if (_filtroStock == 'Sin stock') {
           productos = productos.where((p) => !p.esServicio && p.stock == 0).toList();
+        }
+
+        // Limitar a 10 si no hay filtro activo
+        if (_filtro.isEmpty) {
+          productos = productos.take(10).toList();
         }
 
         // Valor total inventario
@@ -439,11 +444,8 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                         productos.where((p) => !p.esServicio).toList(), 
                         valorTotal
                       ),
-                      icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                      label: const Text(
-                        'Imprimir',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                     icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                      label: const SizedBox.shrink(),
                     ),
                   ),
 
@@ -454,7 +456,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                 children: [
                   _tarjeta(
                     titulo: 'Valor Total Inventario',
-                    valor: 'Gs. ${valorTotal.toStringAsFixed(0)}',
+                    valor: 'Gs. ${valorTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                     icono: Icons.attach_money,
                     color: Colors.green,
                   ),
@@ -656,7 +658,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Gs. ${p.precio.toStringAsFixed(0)}',
+                              'Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E88E5),
@@ -664,13 +666,13 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                             ),
                             if (!p.esServicio)
                               Text(
-                                'Compra: Gs. ${p.precioCompra.toStringAsFixed(0)}',
+                                'Compra: Gs. ${p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                                 style: const TextStyle(
                                     fontSize: 11, color: Colors.grey),
                               ),
                           ],
                         ),
-                        onTap: () => _mostrarOpciones(p),
+                        // onTap removido
                       ); // Cierra ListTile
                     }, // Cierra itemBuilder
                   ), // Cierra ListView.separated

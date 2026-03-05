@@ -20,3 +20,17 @@ class Responsive {
     return const EdgeInsets.fromLTRB(32, 24, 32, 24);
   }
 }
+
+String formatoGuarani(double monto) {
+  final partes = monto.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.").split('');
+  String resultado = '';
+  int contador = 0;
+  for (int i = partes.length - 1; i >= 0; i--) {
+    if (contador > 0 && contador % 3 == 0) {
+      resultado = '.$resultado';
+    }
+    resultado = partes[i] + resultado;
+    contador++;
+  }
+  return resultado;
+}

@@ -441,14 +441,14 @@ class _DashboardContentState extends State<DashboardContent> {
           pageHeader('BIENVENIDO BN24py', context),
           isMobile
             ? Column(children: [
-                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0)}', Icons.trending_up, Colors.blue),
+                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', Icons.trending_up, Colors.blue),
                 const SizedBox(height: 8),
                 _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange),
                 const SizedBox(height: 8),
                 _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple),
               ])
             : Row(children: [
-                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0)}', Icons.trending_up, Colors.blue)),
+                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${_ventasMes.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', Icons.trending_up, Colors.blue)),
                 const SizedBox(width: 16),
                 Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange)),
                 const SizedBox(width: 16),
@@ -623,7 +623,7 @@ class _DashboardContentState extends State<DashboardContent> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Gs. ${(v['total'] ?? 0).toStringAsFixed(0)}',
+                              'Gs. ${(v['total'] ?? 0).toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: anulada

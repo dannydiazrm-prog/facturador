@@ -419,7 +419,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                             'Código: ${p.codigo} | ${p.esServicio ? "Servicio" : "Stock: ${p.stock}"}',
                           ),
                           trailing: Text(
-                            'Gs. ${p.precio.toStringAsFixed(0)}',
+                            'Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E88E5),
@@ -461,7 +461,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    'Gs. ${item.precioUnitario.toStringAsFixed(0)} c/u',
+                                    'Gs. ${item.precioUnitario.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")} c/u',
                                     style: const TextStyle(color: Colors.grey, fontSize: 12),
                                   ),
                                 ],
@@ -482,7 +482,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                             SizedBox(
                               width: 100,
                               child: Text(
-                                'Gs. ${item.subtotal.toStringAsFixed(0)}',
+                                'Gs. ${item.subtotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                                 textAlign: TextAlign.right,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -522,7 +522,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Subtotal:'),
-                            Text('Gs. ${_subtotal.toStringAsFixed(0)}'),
+                            Text('Gs. ${_subtotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}'),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -530,7 +530,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('IVA 10%:'),
-                            Text('Gs. ${_iva10.toStringAsFixed(0)}'),
+                            Text('Gs. ${_iva10.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}'),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -547,7 +547,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     Text(
-                      'Gs. ${_total.toStringAsFixed(0)}',
+                      'Gs. ${_total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -592,7 +592,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                           ),
                         ),
                         Text(
-                          'Gs. ${_vuelto.abs().toStringAsFixed(0)}',
+                          'Gs. ${_vuelto.abs().toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,

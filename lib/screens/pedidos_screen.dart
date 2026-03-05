@@ -55,7 +55,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
 
   void _abrirFormulario({Pedido? pedido}) {
     final clienteCtrl = TextEditingController(text: pedido?.clienteNombre ?? '');
-    final adelantoCtrl = TextEditingController(text: pedido?.adelanto.toStringAsFixed(0) ?? '0');
+    final adelantoCtrl = TextEditingController(text: pedido?.adelanto.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.") ?? '0');
     DateTime fechaEntrega = pedido?.fechaEntrega ?? DateTime.now().add(const Duration(days: 1));
     String estado = pedido?.estado ?? 'pendiente';
     List<Map<String, dynamic>> items = pedido?.items.map((i) => {
@@ -64,7 +64,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
       'precio': i.precio,
       'descCtrl': TextEditingController(text: i.descripcion),
       'cantCtrl': TextEditingController(text: i.cantidad.toString()),
-      'precioCtrl': TextEditingController(text: i.precio.toStringAsFixed(0)),
+      'precioCtrl': TextEditingController(text: i.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")),
     }).toList() ?? [];
 
     showModalBottomSheet(
@@ -175,7 +175,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Gs. ${total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
+                      Text('Gs. ${total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -190,7 +190,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Saldo pendiente:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Gs. ${saldo.toStringAsFixed(0)}',
+                      Text('Gs. ${saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
                           style: TextStyle(fontWeight: FontWeight.bold, color: saldo > 0 ? Colors.orange : Colors.green)),
                     ],
                   ),
@@ -295,21 +295,21 @@ class _PedidosScreenState extends State<PedidosScreen> {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text('${item.cantidad}x ${item.descripcion}', style: pw.TextStyle(fontSize: esA4 ? 11 : 8)),
-                pw.Text('Gs. ${item.subtotal.toStringAsFixed(0)}', style: pw.TextStyle(fontSize: esA4 ? 11 : 8)),
+                pw.Text('Gs. ${item.subtotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: pw.TextStyle(fontSize: esA4 ? 11 : 8)),
               ],
             )),
             pw.Divider(),
             pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
               pw.Text('Total:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${pedido.total.toStringAsFixed(0)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
+              pw.Text('Gs. ${pedido.total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
             ]),
             pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
               pw.Text('Adelanto:', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${pedido.adelanto.toStringAsFixed(0)}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
+              pw.Text('Gs. ${pedido.adelanto.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
             ]),
             pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
               pw.Text('Saldo pendiente:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${pedido.saldo.toStringAsFixed(0)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
+              pw.Text('Gs. ${pedido.saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
             ]),
             pw.SizedBox(height: 8),
             pw.Center(child: pw.Text('Este comprobante no tiene validez fiscal.', style: pw.TextStyle(fontSize: esA4 ? 10 : 7, fontStyle: pw.FontStyle.italic, color: PdfColors.grey600))),
@@ -345,7 +345,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
             Text(pedido.clienteNombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
             const SizedBox(height: 4),
             Text('Entrega: ${pedido.fechaEntrega.day}/${pedido.fechaEntrega.month}/${pedido.fechaEntrega.year}', style: const TextStyle(color: Colors.grey)),
-            Text('Total: Gs. ${pedido.total.toStringAsFixed(0)} | Saldo: Gs. ${pedido.saldo.toStringAsFixed(0)}', style: const TextStyle(color: Colors.grey)),
+            Text('Total: Gs. ${pedido.total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")} | Saldo: Gs. ${pedido.saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -355,17 +355,17 @@ class _PedidosScreenState extends State<PedidosScreen> {
             const Divider(height: 24),
             ListTile(
               leading: const Icon(Icons.edit, color: Color(0xFF1E88E5)),
-              title: const Text('Editar pedido'),
+              title: const Text('Editar'),
               onTap: () { Navigator.pop(context); _abrirFormulario(pedido: pedido); },
             ),
             ListTile(
               leading: const Icon(Icons.print, color: Colors.purple),
-              title: const Text('Imprimir ticket 80mm'),
+              title: const Text('Ticket'),
               onTap: () { Navigator.pop(context); _imprimirPedido(pedido, 'ticket'); },
             ),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-              title: const Text('Imprimir A4'),
+              title: const Text('A4'),
               onTap: () { Navigator.pop(context); _imprimirPedido(pedido, 'a4'); },
             ),
             ListTile(
@@ -376,7 +376,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Eliminar pedido'),
+                    title: const Text('Eliminar'),
                     content: Text('¿Eliminar este pedido?'),
                     actions: [
                       TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
@@ -543,12 +543,12 @@ class _PedidosScreenState extends State<PedidosScreen> {
                           ],
                         ],
                       ),
-                      subtitle: Text('${p.items.length} item(s) | Saldo: Gs. ${p.saldo.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12)),
+                      subtitle: Text('${p.items.length} item(s) | Saldo: Gs. ${p.saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(fontSize: 12)),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('Gs. ${p.total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
+                          Text('Gs. ${p.total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
                           Text('${p.fechaEntrega.day}/${p.fechaEntrega.month}/${p.fechaEntrega.year}',
                               style: TextStyle(fontSize: 11, color: vencido ? Colors.red : Colors.grey)),
                         ],

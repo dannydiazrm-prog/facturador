@@ -179,7 +179,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
                 child: const Icon(Icons.delete, color: Colors.red),
               ),
               title: const Text('Eliminar cliente'),
-              subtitle: const Text('Solo si no tiene ventas asociadas'),
+              subtitle: const Text('Borrar datos de cliente'),
               onTap: () {
                 Navigator.pop(context);
                 _confirmarEliminar(cliente);

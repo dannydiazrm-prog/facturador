@@ -35,8 +35,8 @@ class _ProductoFormState extends State<ProductoForm> {
       _nombreCtrl.text = p.nombre;
       _stockCtrl.text = p.stock.toString();
       _stockMinimoCtrl.text = p.stockMinimo.toString();
-      _precioCompraCtrl.text = p.precioCompra.toStringAsFixed(0);
-      _precioVentaCtrl.text = p.precio.toStringAsFixed(0);
+      _precioCompraCtrl.text = p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.");
+      _precioVentaCtrl.text = p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.");
       _esServicio = p.esServicio;
     }
   }
