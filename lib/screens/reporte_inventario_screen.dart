@@ -412,35 +412,41 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
             .where((p) => !p.esServicio)
             .fold(0.0, (sum, p) => sum + (p.stock * p.precioCompra));
 
-        // Productos sin movimiento
+                // Productos sin movimiento
         final sinMovimiento = todos.where((p) => !p.esServicio).length;
 
-        return SingleChildScrollView(
-      padding: Responsive.pagePadding(context),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-                            pageHeader(
-                'REPORTE DE INVENTARIO',
-                context,
-                trailing: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A2744),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+        return Scaffold(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: Responsive.pagePadding(context),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  pageHeader(
+                    'REPORTE DE INVENTARIO',
+                    context,
+                    trailing: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A2744),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () => _generarPDF(
+                        productos.where((p) => !p.esServicio).toList(), 
+                        valorTotal
+                      ),
+                      icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                      label: const Text(
+                        'Imprimir',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
-                  onPressed: () => _generarPDF(productos.where((p) => !p.esServicio).toList(), valorTotal),
-                  icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                  label: const Text(
-                    'Toma de Inventario',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
+
 
 
               // Tarjetas resumen
@@ -665,16 +671,18 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                           ],
                         ),
                         onTap: () => _mostrarOpciones(p),
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                      ); // Cierra ListTile
+                    }, // Cierra itemBuilder
+                  ), // Cierra ListView.separated
+                ), // Cierra Container
+            ], // Cierra children: [
+          ), // Cierra Column
+        ), // Cierra SingleChildScrollView
+      ), // Cierra SafeArea
+    ); // Cierra Scaffold
+  }, // Cierra builder: (context, snapshot) {
+); // Cierra StreamBuilder(
+} // Cierra el método Widget build
 
   Widget _tarjeta({
     required String titulo,

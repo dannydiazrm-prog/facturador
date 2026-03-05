@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.bn24.facturador" "\0"
-            VALUE "FileDescription", "facturador" "\0"
+            VALUE "FileDescription", "BN24" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "facturador" "\0"
+            VALUE "InternalName", "BN24" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.bn24.facturador. All rights reserved." "\0"
             VALUE "OriginalFilename", "facturador.exe" "\0"
-            VALUE "ProductName", "facturador" "\0"
+            VALUE "ProductName", "BN24" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
