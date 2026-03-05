@@ -717,10 +717,13 @@ Widget _cardPedidos() {
                   }
                   return GestureDetector(
                     onTap: () {
-                      showModalBottomSheet(
+                    showModalBottomSheet(
                         context: context,
+                        isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (context) => Container(
+                        builder: (context) => Padding(
+                          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 80),
+                          child: Container(
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -754,6 +757,7 @@ Widget _cardPedidos() {
                             ],
                           ),
                         ),
+						),
                       );
                     },
                     child: Container(

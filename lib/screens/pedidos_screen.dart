@@ -274,52 +274,96 @@ class _PedidosScreenState extends State<PedidosScreen> {
 
   Future<void> _imprimirPedido(Pedido pedido, String formato) async {
     final pdf = pw.Document();
-    final esA4 = formato == 'a4';
 
     pdf.addPage(
       pw.Page(
-        pageFormat: esA4 ? PdfPageFormat.a4 : const PdfPageFormat(80 * PdfPageFormat.mm, double.infinity),
-        margin: pw.EdgeInsets.all(esA4 ? 40 : 12),
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Center(child: pw.Text('COMPROBANTE DE PEDIDO', style: pw.TextStyle(fontSize: esA4 ? 18 : 12, fontWeight: pw.FontWeight.bold))),
+            pw.Center(
+              child: pw.Text(
+                'Para ${pedido.clienteNombre}',
+                style: pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.SizedBox(height: 12),
+            pw.Center(
+              child: pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.black, width: 2),
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                ),
+                child: pw.Text(
+                  'ENTREGAR EL: ${pedido.fechaEntrega.day}/${pedido.fechaEntrega.month}/${pedido.fechaEntrega.year}',
+                  style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Text('ESTADO DEL PEDIDO:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 8),
-            pw.Text('Cliente: ${pedido.clienteNombre}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
-            pw.Text('Fecha entrega: ${pedido.fechaEntrega.day}/${pedido.fechaEntrega.month}/${pedido.fechaEntrega.year}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
-            pw.Text('Estado: ${_textoEstado(pedido.estado)}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
             pw.Divider(),
-            pw.Text('Detalle:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-            pw.SizedBox(height: 4),
-            ...pedido.items.map((item) => pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text('${item.cantidad}x ${item.descripcion}', style: pw.TextStyle(fontSize: esA4 ? 11 : 8)),
-                pw.Text('Gs. ${formatGs(item.subtotal)}', style: pw.TextStyle(fontSize: esA4 ? 11 : 8)),
-              ],
+            ...pedido.items.map((item) => pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(vertical: 6),
+              child: pw.Row(
+                children: [
+                  pw.Container(
+                    width: 16, height: 16,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.black, width: 1.5),
+                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+                    ),
+                  ),
+                  pw.SizedBox(width: 10),
+                  pw.Text('${item.cantidad}x ${item.descripcion}', style: const pw.TextStyle(fontSize: 13)),
+                ],
+              ),
             )),
             pw.Divider(),
-            pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-              pw.Text('Total:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${formatGs(pedido.total)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-            ]),
-            pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-              pw.Text('Adelanto:', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${formatGs(pedido.adelanto)}', style: pw.TextStyle(fontSize: esA4 ? 12 : 9)),
-            ]),
-            pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-              pw.Text('Saldo pendiente:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-              pw.Text('Gs. ${formatGs(pedido.saldo)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: esA4 ? 12 : 9)),
-            ]),
-            pw.SizedBox(height: 8),
-            pw.Center(child: pw.Text('Este comprobante no tiene validez fiscal.', style: pw.TextStyle(fontSize: esA4 ? 10 : 7, fontStyle: pw.FontStyle.italic, color: PdfColors.grey600))),
+            pw.SizedBox(height: 16),
+            pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.all(16),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.black, width: 2.5),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              ),
+              child: pw.Column(
+                children: [
+                  pw.Text(
+                    'POR COBRAR: Gs. ${formatGs(pedido.saldo)}',
+                    style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.SizedBox(height: 6),
+                  pw.Text(
+                    'Total: Gs. ${formatGs(pedido.total)}   |   Adelanto: Gs. ${formatGs(pedido.adelanto)}',
+                    style: const pw.TextStyle(fontSize: 10),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Text('NOTAS:', style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 6),
+            pw.Container(
+              width: double.infinity,
+              height: 120,
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.grey400, width: 1),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              ),
+            ),
           ],
         ),
       ),
     );
     await Printing.layoutPdf(onLayout: (format) async => pdf.save());
   }
-
   void _mostrarOpciones(Pedido pedido) {
     final estado = pedido.estado;
     Color colorEstado;
@@ -331,8 +375,11 @@ class _PedidosScreenState extends State<PedidosScreen> {
     }
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -406,6 +453,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
