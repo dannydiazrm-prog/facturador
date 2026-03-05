@@ -13,7 +13,7 @@ class Responsive {
   static double sidebarWidth(BuildContext context) =>
       isMobile(context) ? 0 : 230;
 
- static EdgeInsets pagePadding(BuildContext context) {
+  static EdgeInsets pagePadding(BuildContext context) {
     if (isMobile(context)) {
       return const EdgeInsets.fromLTRB(56, 24, 16, 80);
     }
@@ -21,22 +21,8 @@ class Responsive {
   }
 }
 
-String formatoGuarani(double monto) {
-  final partes = formatGs(monto).split('');
-  String resultado = '';
-  int contador = 0;
-  for (int i = partes.length - 1; i >= 0; i--) {
-    if (contador > 0 && contador % 3 == 0) {
-      resultado = '.$resultado';
-    }
-    resultado = partes[i] + resultado;
-    contador++;
-  }
-  return resultado;
-}
-
 String formatGs(double monto) {
-  final String s = formatGs(monto);
+  final String s = monto.toStringAsFixed(0);
   final buffer = StringBuffer();
   final int start = s.length % 3;
   if (start > 0) buffer.write(s.substring(0, start));
