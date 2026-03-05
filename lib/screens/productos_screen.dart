@@ -258,7 +258,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
               ),
               onPressed: () => _abrirFormulario(),
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Nuevo Producto', style: TextStyle(color: Colors.white)),
+              label: const Text('Nuevo', style: TextStyle(color: Colors.white)),
             ),
           ),
           const SizedBox(height: 24),

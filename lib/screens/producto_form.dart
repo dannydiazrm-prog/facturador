@@ -68,8 +68,8 @@ class _ProductoFormState extends State<ProductoForm> {
       esServicio: _esServicio,
       stock: stockNuevo,
       stockMinimo: _esServicio ? 0 : int.parse(_stockMinimoCtrl.text.trim()),
-      precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim()),
-      precio: double.parse(_precioVentaCtrl.text.trim()),
+precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().replaceAll('.', '')),
+      precio: double.parse(_precioVentaCtrl.text.trim().replaceAll('.', '')),
     );
 
     await _service.agregarProducto(producto);
@@ -79,7 +79,7 @@ class _ProductoFormState extends State<ProductoForm> {
       await _service.registrarGastoMercaderia(
         _nombreCtrl.text.trim(),
         diferencia,
-        double.parse(_precioCompraCtrl.text.trim()),
+        double.parse(_precioCompraCtrl.text.trim().replaceAll('.', '')),
       );
     }
 
@@ -272,7 +272,7 @@ class _ProductoFormState extends State<ProductoForm> {
                         icono: Icons.archive,
                         maxLength: 6,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [MilesFormatter()],
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) return 'Obligatorio';
                           return null;
@@ -287,7 +287,7 @@ class _ProductoFormState extends State<ProductoForm> {
                         icono: Icons.warning_amber,
                         maxLength: 6,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [MilesFormatter()],
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) return 'Obligatorio';
                           return null;
@@ -303,7 +303,7 @@ class _ProductoFormState extends State<ProductoForm> {
                   icono: Icons.shopping_cart,
                   maxLength: 15,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [MilesFormatter()],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'El precio de compra es obligatorio';
                     return null;
@@ -319,7 +319,7 @@ class _ProductoFormState extends State<ProductoForm> {
                 icono: Icons.sell,
                 maxLength: 15,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [MilesFormatter()],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'El precio de venta es obligatorio';
                   return null;

@@ -225,9 +225,8 @@ void _guardar() async {
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
                 ],
                 validator: (v) {
-                  if (v != null && v.trim().isNotEmpty) {
-                    if (!v.contains('@') || !v.contains('.')) return 'Correo inválido';
-                  }
+                  if (v == null || v.trim().isEmpty) return 'El RUC o CI es obligatorio';
+                  if (v.trim().length < 6) return 'Mínimo 6 caracteres';
                   return null;
                 },
               ),
@@ -241,8 +240,9 @@ void _guardar() async {
                 maxLength: 50,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'El correo es obligatorio';
-                  if (!v.contains('@') || !v.contains('.')) return 'Correo inválido';
+                  if (v != null && v.trim().isNotEmpty) {
+                    if (!v.contains('@') || !v.contains('.')) return 'Correo inválido';
+                  }
                   return null;
                 },
               ),

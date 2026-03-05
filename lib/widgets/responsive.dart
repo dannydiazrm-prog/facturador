@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Responsive {
   static bool isMobile(BuildContext context) =>
@@ -31,4 +32,19 @@ String formatGs(double monto) {
     buffer.write(s.substring(i, i + 3));
   }
   return buffer.toString();
+}
+
+class MilesFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final texto = newValue.text.replaceAll('.', '');
+    if (texto.isEmpty) return newValue.copyWith(text: '');
+    final numero = int.tryParse(texto);
+    if (numero == null) return oldValue;
+    final formateado = formatGs(numero.toDouble());
+    return newValue.copyWith(
+      text: formateado,
+      selection: TextSelection.collapsed(offset: formateado.length),
+    );
+  }
 }

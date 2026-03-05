@@ -303,11 +303,19 @@ class _PedidosScreenState extends State<PedidosScreen> {
               ),
             ),
             pw.SizedBox(height: 20),
-            pw.Text('ESTADO DEL PEDIDO:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text('DESCRIPCIÓN:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 8),
             pw.Divider(),
             ...pedido.items.map((item) => pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(vertical: 6),
+              padding: const pw.EdgeInsets.symmetric(vertical: 4),
+              child: pw.Text('• ${item.cantidad}x ${item.descripcion}', style: const pw.TextStyle(fontSize: 13)),
+            )),
+            pw.Divider(),
+            pw.SizedBox(height: 12),
+            pw.Text('ESTADO DEL PEDIDO:', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            ...['Pendiente', 'En proceso', 'Listo', 'Entregado'].map((estado) => pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(vertical: 5),
               child: pw.Row(
                 children: [
                   pw.Container(
@@ -318,7 +326,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
                     ),
                   ),
                   pw.SizedBox(width: 10),
-                  pw.Text('${item.cantidad}x ${item.descripcion}', style: const pw.TextStyle(fontSize: 13)),
+                  pw.Text(estado, style: const pw.TextStyle(fontSize: 13)),
                 ],
               ),
             )),

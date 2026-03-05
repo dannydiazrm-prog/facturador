@@ -496,7 +496,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                         const Icon(Icons.warning_amber, color: Colors.orange),
                         const SizedBox(width: 8),
                         Text(
-                          '$sinMov producto(s) sin ventas en los últimos 7 días',
+                          '$sinMov producto(s) sin ventas hace 7 días',
                           style: const TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.w600,
