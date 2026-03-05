@@ -189,7 +189,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
               });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Baja registrada: -$cant unidades. Pérdida: Gs. ${perdida.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}'), backgroundColor: Colors.orange),
+                SnackBar(content: Text('Baja registrada: -$cant unidades. Pérdida: Gs. ${formatGs(perdida)}'), backgroundColor: Colors.orange),
               );
             },
             child: const Text('Dar de baja', style: TextStyle(color: Colors.white)),
@@ -375,8 +375,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
-                          if (!p.esServicio) Text('Compra: Gs. ${p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                          Text('Gs. ${formatGs(p.precio)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5))),
+                          if (!p.esServicio) Text('Compra: Gs. ${formatGs(p.precioCompra)}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
                         ],
                       ),
                       onTap: () => _mostrarOpciones(p),

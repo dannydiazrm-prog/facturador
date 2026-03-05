@@ -266,7 +266,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
             children: [
               pw.Text('Total productos: ${productos.length}'),
               pw.Text(
-                'Valor total inventario: Gs. ${valorTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                'Valor total inventario: Gs. ${formatGs(valorTotal)}',
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               ),
             ],
@@ -360,13 +360,13 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                       child: pw.Text(
                           p.esServicio
                               ? '-'
-                              : 'Gs. ${p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                              : 'Gs. ${formatGs(p.precioCompra)}',
                           style: const pw.TextStyle(fontSize: 9)),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(6),
                       child: pw.Text(
-                          'Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                          'Gs. ${formatGs(p.precio)}',
                           style: const pw.TextStyle(fontSize: 9)),
                     ),
                   ],
@@ -456,7 +456,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                 children: [
                   _tarjeta(
                     titulo: 'Valor Total Inventario',
-                    valor: 'Gs. ${valorTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                    valor: 'Gs. ${formatGs(valorTotal)}',
                     icono: Icons.attach_money,
                     color: Colors.green,
                   ),
@@ -658,7 +658,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Gs. ${p.precio.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                              'Gs. ${formatGs(p.precio)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E88E5),
@@ -666,7 +666,7 @@ class _ReporteInventarioScreenState extends State<ReporteInventarioScreen> {
                             ),
                             if (!p.esServicio)
                               Text(
-                                'Compra: Gs. ${p.precioCompra.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                                'Compra: Gs. ${formatGs(p.precioCompra)}',
                                 style: const TextStyle(
                                     fontSize: 11, color: Colors.grey),
                               ),

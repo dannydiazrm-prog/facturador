@@ -65,7 +65,7 @@ class CajaScreen extends StatelessWidget {
                 children: [
                   _tarjeta(
                     titulo: 'Total Vendido',
-                    valor: 'Gs. ${totalVendido.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                    valor: 'Gs. ${formatGs(totalVendido)}',
                     icono: Icons.trending_up,
                     color: Colors.green,
                   ),
@@ -90,7 +90,7 @@ class CajaScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   _tarjeta(
                     titulo: 'Monto Anulado',
-                    valor: 'Gs. ${totalAnulado.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                    valor: 'Gs. ${formatGs(totalAnulado)}',
                     icono: Icons.money_off,
                     color: Colors.orange,
                   ),
@@ -168,7 +168,7 @@ class CajaScreen extends StatelessWidget {
                               style: const TextStyle(fontSize: 12),
                             ),
                             trailing: Text(
-                              'Gs. ${(data['total'] ?? 0).toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                              'Gs. ${(data['total'] ?? 0).toStringAsFixed(0)}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: anulada

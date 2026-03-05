@@ -13,16 +13,16 @@ class Responsive {
   static double sidebarWidth(BuildContext context) =>
       isMobile(context) ? 0 : 230;
 
-  static EdgeInsets pagePadding(BuildContext context) {
+ static EdgeInsets pagePadding(BuildContext context) {
     if (isMobile(context)) {
-      return const EdgeInsets.fromLTRB(16, 24, 16, 24);
+      return const EdgeInsets.fromLTRB(56, 24, 16, 80);
     }
     return const EdgeInsets.fromLTRB(32, 24, 32, 24);
   }
 }
 
 String formatoGuarani(double monto) {
-  final partes = monto.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.").split('');
+  final partes = formatGs(monto).split('');
   String resultado = '';
   int contador = 0;
   for (int i = partes.length - 1; i >= 0; i--) {
@@ -33,4 +33,16 @@ String formatoGuarani(double monto) {
     contador++;
   }
   return resultado;
+}
+
+String formatGs(double monto) {
+  final String s = formatGs(monto);
+  final buffer = StringBuffer();
+  final int start = s.length % 3;
+  if (start > 0) buffer.write(s.substring(0, start));
+  for (int i = start; i < s.length; i += 3) {
+    if (buffer.isNotEmpty) buffer.write('.');
+    buffer.write(s.substring(i, i + 3));
+  }
+  return buffer.toString();
 }

@@ -253,7 +253,7 @@ class _ReporteVentasScreenState extends State<ReporteVentasScreen> {
                   ],
                 ),
                 Text(
-                  'Gs. ${_totalPeriodo.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                  'Gs. ${formatGs(_totalPeriodo)}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
@@ -413,7 +413,7 @@ class _ReporteVentasScreenState extends State<ReporteVentasScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Gs. ${total.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                                  'Gs. ${formatGs(total)}',
                                   style: TextStyle(
                                     color: colores[idx],
                                     fontWeight: FontWeight.bold,

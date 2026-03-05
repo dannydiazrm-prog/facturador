@@ -610,7 +610,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Gs. ${resultado.abs().toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                              'Gs. ${formatGs(resultado.abs())}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,
@@ -627,14 +627,14 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                         children: [
                           _tarjeta(
                             titulo: 'Ingresos',
-                            valor: 'Gs. ${totalIngresos.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                            valor: 'Gs. ${formatGs(totalIngresos)}',
                             icono: Icons.arrow_upward,
                             color: Colors.green,
                           ),
                           const SizedBox(width: 12),
                           _tarjeta(
                             titulo: 'Gastos',
-                            valor: 'Gs. ${totalGastos.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                            valor: 'Gs. ${formatGs(totalGastos)}',
                             icono: Icons.arrow_downward,
                             color: Colors.red,
                           ),
@@ -643,7 +643,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                       const SizedBox(height: 12),
                       _tarjetaAncha(
                         titulo: 'Capital Inyectado',
-                        valor: 'Gs. ${totalCapital.toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                        valor: 'Gs. ${formatGs(totalCapital)}',
                         icono: Icons.account_balance,
                         color: Colors.blue,
                       ),
@@ -844,7 +844,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Gs. ${(g['monto'] ?? 0).toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                                      'Gs. ${(g['monto'] ?? 0).toStringAsFixed(0)}',
                                       style: const TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
@@ -921,7 +921,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Gs. ${(c['monto'] ?? 0).toStringAsFixed(0).replaceAllMapped(RegExp(r"(d{1,3})(?=(d{3})+(?!d))"), (m) => "${m[1]}.")}',
+                                      'Gs. ${(c['monto'] ?? 0).toStringAsFixed(0)}',
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,
