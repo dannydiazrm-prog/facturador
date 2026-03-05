@@ -378,7 +378,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16),
         child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
