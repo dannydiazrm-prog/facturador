@@ -288,7 +288,7 @@ class _HistorialVentasScreenState extends State<HistorialVentasScreen> {
                         style: const TextStyle(fontSize: 12),
                       ),
                       trailing: Text(
-                        'Gs. ${(data['total'] ?? 0).toStringAsFixed(0)}',
+                        'Gs. ${formatGs((data['total'] ?? 0).toDouble())}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: anulada ? Colors.grey : const Color(0xFF1E88E5),
@@ -511,14 +511,14 @@ try {
                       children: [
                         Text(item['nombre'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                          '${item['cantidad']} x Gs. ${(item['precioUnitario'] ?? 0).toStringAsFixed(0)}',
+                          '${item['cantidad']} x Gs. ${formatGs((item['precioUnitario'] ?? 0).toDouble())}',
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ],
                     ),
               ),
                   Text(
-                    'Gs. ${(item['subtotal'] ?? 0).toStringAsFixed(0)}',
+                    'Gs. ${formatGs((item['subtotal'] ?? 0).toDouble())}',
                     style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E88E5)),
                   ),
                 ],
@@ -546,7 +546,7 @@ try {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Subtotal:'),
-                              Text('Gs. ${(venta['subtotal'] ?? 0).toStringAsFixed(0)}'),
+                              Text('Gs. ${formatGs((venta['subtotal'] ?? 0).toDouble())}'),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -554,7 +554,7 @@ try {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('IVA 10%:'),
-                              Text('Gs. ${(venta['iva10'] ?? 0).toStringAsFixed(0)}'),
+                              Text('Gs. ${formatGs((venta['iva10'] ?? 0).toDouble())}'),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -568,7 +568,7 @@ try {
                     children: [
                       const Text('TOTAL:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       Text(
-                        'Gs. ${(venta['total'] ?? 0).toStringAsFixed(0)}',
+                        'Gs. ${formatGs((venta['total'] ?? 0).toDouble())}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E88E5)),
                       ),
                     ],
@@ -578,7 +578,7 @@ try {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Pagó:'),
-                      Text('Gs. ${(venta['montoPagado'] ?? 0).toStringAsFixed(0)}'),
+                      Text('Gs. ${formatGs((venta['montoPagado'] ?? 0).toDouble())}'),
                     ],
                   ),
                   if ((venta['vuelto'] ?? 0) > 0) ...[
@@ -587,7 +587,7 @@ try {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Vuelto:'),
-                        Text('Gs. ${(venta['vuelto'] ?? 0).toStringAsFixed(0)}'),
+                        Text('Gs. ${formatGs((venta['vuelto'] ?? 0).toDouble())}'),
                       ],
                     ),
                   ],

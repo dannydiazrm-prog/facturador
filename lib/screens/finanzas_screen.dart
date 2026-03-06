@@ -841,7 +841,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                               onPressed: _mostrarAgregarCapital,
                               icon: const Icon(Icons.add, color: Colors.white),
                               label: const Text(
-                                'Inyectar Capital',
+                                'Agregar ingreso',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -907,7 +907,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Gs. ${(g['monto'] ?? 0).toStringAsFixed(0)}',
+                                      'Gs. ${formatGs((g['monto'] ?? 0).toDouble())}',
                                       style: const TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
@@ -984,7 +984,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      'Gs. ${(c['monto'] ?? 0).toStringAsFixed(0)}',
+                                      'Gs. ${formatGs((c['monto'] ?? 0).toDouble())}',
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.bold,

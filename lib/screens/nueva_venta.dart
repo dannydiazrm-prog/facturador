@@ -33,7 +33,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
   double get _iva10 => _subtotal / 11;
   double get _total => _subtotal;
   double get _vuelto {
-    final pagado = double.tryParse(_montoPagadoController.text) ?? 0;
+    final pagado = double.tryParse(_montoPagadoController.text.replaceAll(".", "")) ?? 0;
     return pagado - _total;
   }
 
@@ -166,7 +166,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
       iva10: _iva10,
       total: _total,
       fecha: DateTime.now(),
-      montoPagado: double.tryParse(_montoPagadoController.text) ?? _total,
+      montoPagado: double.tryParse(_montoPagadoController.text.replaceAll(".", "")) ?? _total,
       vuelto: _vuelto > 0 ? _vuelto : 0,
     );
 
@@ -560,7 +560,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                 TextField(
                   controller: _montoPagadoController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [MilesFormatter()],
                   decoration: const InputDecoration(
                     labelText: 'Monto pagado por el cliente (Gs.)',
                     border: OutlineInputBorder(),

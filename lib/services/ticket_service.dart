@@ -1,3 +1,4 @@
+import '../widgets/responsive.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -106,9 +107,9 @@ class TicketService {
                         _celda(item['nombre'] ?? ''),
                         _celda('${item['cantidad']}'),
                         _celda(
-                            'Gs. ${(item['precioUnitario'] ?? 0).toStringAsFixed(0)}'),
+                            'Gs. ${formatGs((item['precioUnitario'] ?? 0).toDouble())}'),
                         _celda(
-                            'Gs. ${(item['subtotal'] ?? 0).toStringAsFixed(0)}'),
+                            'Gs. ${formatGs((item['subtotal'] ?? 0).toDouble())}'),
                       ],
                     )),
               ],
@@ -120,17 +121,17 @@ class TicketService {
             // Totales
             if (tieneFactura) ...[
               _filaTotal('Subtotal:',
-                  'Gs. ${(venta['subtotal'] ?? 0).toStringAsFixed(0)}'),
+                  'Gs. ${formatGs((venta['subtotal'] ?? 0).toDouble())}'),
               _filaTotal('IVA 10%:',
-                  'Gs. ${(venta['iva10'] ?? 0).toStringAsFixed(0)}'),
+                  'Gs. ${formatGs((venta['iva10'] ?? 0).toDouble())}'),
             ],
             _filaTotalNegrita(
-                'TOTAL:', 'Gs. ${(venta['total'] ?? 0).toStringAsFixed(0)}'),
+                'TOTAL:', 'Gs. ${formatGs((venta['total'] ?? 0).toDouble())}'),
             pw.SizedBox(height: 4),
             _filaTotal('Pagó:',
-                'Gs. ${(venta['montoPagado'] ?? 0).toStringAsFixed(0)}'),
+                'Gs. ${formatGs((venta['montoPagado'] ?? 0).toDouble())}'),
             _filaTotal('Vuelto:',
-                'Gs. ${(venta['vuelto'] ?? 0).toStringAsFixed(0)}'),
+                'Gs. ${formatGs((venta['vuelto'] ?? 0).toDouble())}'),
             pw.SizedBox(height: 16),
             pw.Divider(),
             pw.SizedBox(height: 8),
@@ -233,10 +234,10 @@ class TicketService {
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text(
-                            '  ${item['cantidad']} x Gs. ${(item['precioUnitario'] ?? 0).toStringAsFixed(0)}',
+                            '  ${item['cantidad']} x Gs. ${formatGs((item['precioUnitario'] ?? 0).toDouble())}',
                             style: const pw.TextStyle(fontSize: 9)),
                         pw.Text(
-                            'Gs. ${(item['subtotal'] ?? 0).toStringAsFixed(0)}',
+                            'Gs. ${formatGs((item['subtotal'] ?? 0).toDouble())}',
                             style: const pw.TextStyle(fontSize: 9)),
                       ],
                     ),
@@ -246,9 +247,9 @@ class TicketService {
                 style: const pw.TextStyle(fontSize: 9)),
             if (tieneFactura) ...[
               _ticketFila('Subtotal:',
-                  'Gs. ${(venta['subtotal'] ?? 0).toStringAsFixed(0)}'),
+                  'Gs. ${formatGs((venta['subtotal'] ?? 0).toDouble())}'),
               _ticketFila('IVA 10%:',
-                  'Gs. ${(venta['iva10'] ?? 0).toStringAsFixed(0)}'),
+                  'Gs. ${formatGs((venta['iva10'] ?? 0).toDouble())}'),
             ],
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -256,15 +257,15 @@ class TicketService {
                 pw.Text('TOTAL:',
                     style: pw.TextStyle(
                         fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                pw.Text('Gs. ${(venta['total'] ?? 0).toStringAsFixed(0)}',
+                pw.Text('Gs. ${formatGs((venta['total'] ?? 0).toDouble())}',
                     style: pw.TextStyle(
                         fontSize: 11, fontWeight: pw.FontWeight.bold)),
               ],
             ),
             _ticketFila('Pagó:',
-                'Gs. ${(venta['montoPagado'] ?? 0).toStringAsFixed(0)}'),
+                'Gs. ${formatGs((venta['montoPagado'] ?? 0).toDouble())}'),
             _ticketFila('Vuelto:',
-                'Gs. ${(venta['vuelto'] ?? 0).toStringAsFixed(0)}'),
+                'Gs. ${formatGs((venta['vuelto'] ?? 0).toDouble())}'),
             pw.SizedBox(height: 6),
             pw.Text(
               '¡Gracias por su compra!',

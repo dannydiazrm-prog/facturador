@@ -623,7 +623,7 @@ class _DashboardContentState extends State<DashboardContent> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Gs. ${(v['total'] ?? 0).toStringAsFixed(0)}',
+                              'Gs. ${formatGs((v['total'] ?? 0).toDouble())}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: anulada
@@ -926,6 +926,7 @@ Widget _cardPedidos() {
                                     ('Historial de Ventas', 'Consulta todas las ventas realizadas. Podes filtrar por fecha, reimprimir tickets y anular ventas si es necesario ingresando tu contrasena.'),
                                     ('Caja', 'Resumen del movimiento del dia. Muestra el total de ventas, cantidad de transacciones y el efectivo en caja.'),
                                     ('Clientes', 'Gestiona tu cartera de clientes. Podes agregar, editar o eliminar clientes.'),
+                                    ('Pedidos', 'Administra los pedidos de tus clientes. Podes crear pedidos con fecha de entrega, registrar adelantos, cambiar el estado y generar un PDF interno para el taller.'),
                                   ]),
                                   const SizedBox(height: 16),
                                   _TutorialSeccion('INVENTARIO', [

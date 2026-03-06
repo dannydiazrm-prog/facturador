@@ -168,7 +168,7 @@ class CajaScreen extends StatelessWidget {
                               style: const TextStyle(fontSize: 12),
                             ),
                             trailing: Text(
-                              'Gs. ${(data['total'] ?? 0).toStringAsFixed(0)}',
+                              'Gs. ${formatGs((data['total'] ?? 0).toDouble())}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: anulada
