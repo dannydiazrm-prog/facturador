@@ -248,6 +248,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
   void _mostrarAgregarCapital() {
     final montoCtrl = TextEditingController();
     final descripCtrl = TextEditingController();
+    String tipoCapital = 'capital';
 
     showModalBottomSheet(
       context: context,
@@ -300,6 +301,42 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
               ],
             ),
             const Divider(),
+           const SizedBox(height: 16),
+            StatefulBuilder(
+              builder: (context, setModalState) => Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setModalState(() => tipoCapital = 'capital'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: tipoCapital == 'capital' ? const Color(0xFF1E88E5) : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text('Capital Inyectado', textAlign: TextAlign.center,
+                          style: TextStyle(color: tipoCapital == 'capital' ? Colors.white : Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setModalState(() => tipoCapital = 'ganancia_extra'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: tipoCapital == 'ganancia_extra' ? Colors.green : Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text('Ganancia Extra', textAlign: TextAlign.center,
+                          style: TextStyle(color: tipoCapital == 'ganancia_extra' ? Colors.white : Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: descripCtrl,
@@ -352,6 +389,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                     'fecha': DateTime.now().toIso8601String(),
                     'descripcion': descripCtrl.text.trim(),
                     'monto': double.parse(montoCtrl.text.trim()),
+                    'tipo': tipoCapital,
                   });
                   Navigator.pop(context);
                 },
@@ -412,7 +450,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                         .map((d) => d.data() as Map<String, dynamic>)
                         .toList() ?? [];
                 final ventasPeriodo = todasVentas
-                    .where((v) => _enPeriodo(v['fecha']))
+                    .where((v) => _enPeriodo(v['fecha']) && v['estado'] != 'anulada')
                     .toList();
                 final totalIngresos = ventasPeriodo.fold(
                     0.0, (sum, v) => sum + (v['total'] ?? 0).toDouble());
@@ -430,11 +468,18 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                 final capitalPeriodo = todoCapital
                     .where((c) => _enPeriodo(c['fecha']))
                     .toList();
-                final totalCapital = capitalPeriodo.fold(
-                    0.0, (sum, c) => sum + (c['monto'] ?? 0).toDouble());
+                final totalCapitalInyectado = capitalPeriodo
+                    .where((c) => (c['tipo'] ?? 'capital') == 'capital')
+                    .fold(0.0, (sum, c) => sum + (c['monto'] ?? 0).toDouble());
 
-                final resultado = totalIngresos + totalCapital - totalGastos;
-                final ganando = resultado >= 0;
+                final totalGananciasExtras = capitalPeriodo
+                    .where((c) => c['tipo'] == 'ganancia_extra')
+                    .fold(0.0, (sum, c) => sum + (c['monto'] ?? 0).toDouble());
+
+                final utilidad = totalIngresos + totalGananciasExtras - totalGastos;
+                final flujoCaja = totalIngresos + totalGananciasExtras + totalCapitalInyectado - totalGastos;
+                final resultado = utilidad;
+                final ganando = utilidad >= 0;
 
                 // Datos gráfico por mes
                 final ventasMes = _ventasPorMes(todasVentas);
@@ -641,11 +686,29 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _tarjeta(
+                            titulo: 'Ganancias Extras',
+                            valor: 'Gs. ${formatGs(totalGananciasExtras)}',
+                            icono: Icons.star,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 12),
+                          _tarjeta(
+                            titulo: 'Capital Inyectado',
+                            valor: 'Gs. ${formatGs(totalCapitalInyectado)}',
+                            icono: Icons.account_balance,
+                            color: Colors.blue,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       _tarjetaAncha(
-                        titulo: 'Capital Inyectado',
-                        valor: 'Gs. ${formatGs(totalCapital)}',
-                        icono: Icons.account_balance,
-                        color: Colors.blue,
+                        titulo: 'Saldo en Caja',
+                        valor: 'Gs. ${formatGs(flujoCaja)}',
+                        icono: Icons.account_balance_wallet,
+                        color: Colors.teal,
                       ),
                       const SizedBox(height: 16),
 
