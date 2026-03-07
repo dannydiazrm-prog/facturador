@@ -238,6 +238,9 @@ class _MainLayoutState extends State<MainLayout> {
       case 'Dashboard':
         return DashboardContent(
           onFacturar: () => setState(() => _paginaActual = 'Nueva Venta'),
+onVerFinanzas: () => setState(() => _paginaActual = 'Finanzas'),
+onVerStock: () => setState(() => _paginaActual = 'Alertas de Stock'),
+onVerProductos: () => setState(() => _paginaActual = 'Productos'),
         );
       case 'Nueva Venta':
         return const NuevaVentaScreen();
@@ -368,7 +371,10 @@ Widget pageHeader(String titulo, BuildContext context) {
 }
 class DashboardContent extends StatefulWidget {
   final VoidCallback onFacturar;
-  const DashboardContent({super.key, required this.onFacturar});
+  final VoidCallback onVerFinanzas;
+  final VoidCallback onVerStock;
+  final VoidCallback onVerProductos;
+  const DashboardContent({super.key, required this.onFacturar, required this.onVerFinanzas, required this.onVerStock, required this.onVerProductos});
 
   @override
   State<DashboardContent> createState() => _DashboardContentState();
@@ -441,18 +447,18 @@ class _DashboardContentState extends State<DashboardContent> {
           pageHeader('BIENVENIDO BN24py', context),
           isMobile
             ? Column(children: [
-                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanzasScreen()))),
+                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: widget.onVerFinanzas),
                 const SizedBox(height: 8),
-                _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertasStockScreen()))),
+                _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: widget.onVerStock),
                 const SizedBox(height: 8),
-                _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(body: SafeArea(child: const ProductosScreen()))))),
+                _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: widget.onVerProductos),
               ])
             : Row(children: [
-                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanzasScreen())))),
+                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: widget.onVerFinanzas)),
                 const SizedBox(width: 16),
-                Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertasStockScreen())))),
+                Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: widget.onVerStock)),
                 const SizedBox(width: 16),
-                Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(body: SafeArea(child: const ProductosScreen())))))),
+                Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: widget.onVerProductos)),
               ]),
           const SizedBox(height: 24),
         isMobile
