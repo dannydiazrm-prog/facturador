@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/firestore_service.dart';
 
 class FinanzasScreen extends StatefulWidget {
@@ -18,7 +19,294 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
   String _periodoSeleccionado = 'Mes';
   DateTime? _fechaDesde;
   DateTime? _fechaHasta;
+  int _paginaGastosAuto = 0;
+  int _paginaGastosManuales = 0;
+  int _paginaIngresos = 0;
+  static const int _itemsPorPagina = 10;
 
+  Future<bool> _pedirContrasena() async {
+    final ctrl = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: TextField(
+          controller: ctrl,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Contraseña del administrador',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          ElevatedButton(
+            onPressed: () {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user != null && ctrl.text.isNotEmpty) {
+                Navigator.pop(context, true);
+              }
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
+    );
+    if (result != true) return false;
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final cred = EmailAuthProvider.credential(email: user.email!, password: ctrl.text);
+      await user.reauthenticateWithCredential(cred);
+      return true;
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña incorrecta'), backgroundColor: Colors.red));
+      return false;
+    }
+  }
+
+  Widget _paginador({required int total, required int paginaActual, required Function(int) onCambiar}) {
+    final totalPaginas = (total / _itemsPorPagina).ceil();
+    if (totalPaginas <= 1) return const SizedBox();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(totalPaginas, (i) {
+        final seleccionado = i == paginaActual;
+        return GestureDetector(
+          onTap: () => onCambiar(i),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: seleccionado ? const Color(0xFF1E88E5) : const Color(0xFFF4F6FA),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: seleccionado ? const Color(0xFF1E88E5) : Colors.grey.shade300),
+            ),
+            child: Text(
+              '${i + 1}',
+              style: TextStyle(
+                color: seleccionado ? Colors.white : Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+  Widget _listaGastos(List gastos, {required bool mostrarEliminar}) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: gastos.length,
+          separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
+          itemBuilder: (context, index) {
+            final g = gastos[index];
+            final fecha = DateTime.parse(g['fecha']);
+            final automatico = g['automatico'] ?? false;
+            return ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(automatico ? Icons.inventory : Icons.receipt_long, color: Colors.red, size: 20),
+              ),
+              title: Text(g['descripcion'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('${g['categoria']} | ${fecha.day}/${fecha.month}/${fecha.year}', style: const TextStyle(fontSize: 12)),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Gs. ${formatGs((g['monto'] ?? 0).toDouble())}',
+                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  if (mostrarEliminar)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                      onPressed: () async {
+                        if (await _pedirContrasena()) {
+                          _service.eliminarGasto(g['id']);
+                        }
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+  void _mostrarTodosGastos(List gastos, String titulo) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        maxChildSize: 0.95,
+        builder: (_, ctrl) => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1A2744))),
+            ),
+            Expanded(
+              child: ListView.separated(
+                controller: ctrl,
+                itemCount: gastos.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
+                itemBuilder: (context, index) {
+                  final g = gastos[index];
+                  final fecha = DateTime.parse(g['fecha']);
+                  final automatico = g['automatico'] ?? false;
+                  return ListTile(
+                    leading: Icon(automatico ? Icons.inventory : Icons.receipt_long, color: Colors.red),
+                    title: Text(g['descripcion'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text('${g['categoria']} | ${fecha.day}/${fecha.month}/${fecha.year}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Gs. ${formatGs((g['monto'] ?? 0).toDouble())}',
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                        if (!automatico)
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                            onPressed: () async {
+                              if (await _pedirContrasena()) {
+                                _service.eliminarGasto(g['id']);
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _listaIngresos(List ingresos) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: ingresos.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
+        itemBuilder: (context, index) {
+          final c = ingresos[index];
+          final fecha = DateTime.parse(c['fecha']);
+          final esGanancia = c['tipo'] == 'ganancia_extra';
+          return ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (esGanancia ? Colors.green : Colors.blue).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                esGanancia ? Icons.star : Icons.account_balance,
+                color: esGanancia ? Colors.green : Colors.blue,
+                size: 20,
+              ),
+            ),
+            title: Text(c['descripcion'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(
+              '${esGanancia ? "Ganancia Extra" : "Capital Inyectado"} | ${fecha.day}/${fecha.month}/${fecha.year}',
+              style: const TextStyle(fontSize: 12),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Gs. ${formatGs((c['monto'] ?? 0).toDouble())}',
+                    style: TextStyle(color: esGanancia ? Colors.green : Colors.blue, fontWeight: FontWeight.bold)),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                  onPressed: () async {
+                    if (await _pedirContrasena()) {
+                      _service.eliminarCapital(c['id']);
+                    }
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _mostrarTodosIngresos(List ingresos) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        maxChildSize: 0.95,
+        builder: (_, ctrl) => Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('INGRESOS DEL PERÍODO', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1A2744))),
+            ),
+            Expanded(
+              child: ListView.separated(
+                controller: ctrl,
+                itemCount: ingresos.length,
+                separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
+                itemBuilder: (context, index) {
+                  final c = ingresos[index];
+                  final fecha = DateTime.parse(c['fecha']);
+                  final esGanancia = c['tipo'] == 'ganancia_extra';
+                  return ListTile(
+                    leading: Icon(
+                      esGanancia ? Icons.star : Icons.account_balance,
+                      color: esGanancia ? Colors.green : Colors.blue,
+                    ),
+                    title: Text(c['descripcion'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text('${esGanancia ? "Ganancia Extra" : "Capital Inyectado"} | ${fecha.day}/${fecha.month}/${fecha.year}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Gs. ${formatGs((c['monto'] ?? 0).toDouble())}',
+                            style: TextStyle(color: esGanancia ? Colors.green : Colors.blue, fontWeight: FontWeight.bold)),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                          onPressed: () async {
+                            if (await _pedirContrasena()) {
+                              _service.eliminarCapital(c['id']);
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
   Future<void> _seleccionarFecha(bool esDesde) async {
     final fecha = await showDatePicker(
       context: context,
@@ -852,159 +1140,61 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
 
                       // Lista gastos del período
                       if (gastosPeriodo.isNotEmpty) ...[
-                        const Text(
-                          'GASTOS DEL PERÍODO',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A2744),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: gastosPeriodo.length,
-                            separatorBuilder: (_, __) => const Divider(
-                                height: 1, indent: 16, endIndent: 16),
-                            itemBuilder: (context, index) {
-                              final g = gastosPeriodo[index];
-                              final fecha =
-                                  DateTime.parse(g['fecha']);
-                              final automatico =
-                                  g['automatico'] ?? false;
-                              return ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Colors.red.withOpacity(0.1),
-                                    borderRadius:
-                                        BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    automatico
-                                        ? Icons.inventory
-                                        : Icons.receipt_long,
-                                    color: Colors.red,
-                                    size: 20,
-                                  ),
-                                ),
-                                title: Text(
-                                  g['descripcion'] ?? '',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  '${g['categoria']} | ${fecha.day}/${fecha.month}/${fecha.year}${automatico ? ' · Automático' : ''}',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Gs. ${formatGs((g['monto'] ?? 0).toDouble())}',
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (!automatico)
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.delete_outline,
-                                            color: Colors.grey,
-                                            size: 20),
-                                        onPressed: () =>
-                                            _service.eliminarGasto(
-                                                g['id']),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                        // Gastos Automáticos
+                        Builder(builder: (context) {
+                          final automaticos = gastosPeriodo.where((g) => g['automatico'] == true).toList();
+                          final manuales = gastosPeriodo.where((g) => (g['automatico'] ?? false) == false).toList();
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (automaticos.isNotEmpty) ...[
+                                const Text('GASTOS AUTOMÁTICOS',
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                                const SizedBox(height: 8),
+                                _listaGastos(automaticos.skip(_paginaGastosAuto * _itemsPorPagina).take(_itemsPorPagina).toList(), mostrarEliminar: false),
+                                _paginador(total: automaticos.length, paginaActual: _paginaGastosAuto, onCambiar: (p) => setState(() => _paginaGastosAuto = p)),
+
+
+
+
+
+                                const SizedBox(height: 16),
+                              ],
+                              if (manuales.isNotEmpty) ...[
+                                const Text('GASTOS MANUALES',
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                                const SizedBox(height: 8),
+                                _listaGastos(manuales.skip(_paginaGastosManuales * _itemsPorPagina).take(_itemsPorPagina).toList(), mostrarEliminar: true),
+                                _paginador(total: manuales.length, paginaActual: _paginaGastosManuales, onCambiar: (p) => setState(() => _paginaGastosManuales = p)),
+
+
+
+
+
+                              ],
+                            ],
+                          );
+                        }),
                       ],
 
                                          // Lista capital del período
                       if (capitalPeriodo.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         const Text(
-                          'CAPITAL INYECTADO',
+                          'INGRESOS DEL PERÍODO',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1A2744),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: capitalPeriodo.length,
-                            separatorBuilder: (_, __) => const Divider(
-                                height: 1, indent: 16, endIndent: 16),
-                            itemBuilder: (context, index) {
-                              final c = capitalPeriodo[index];
-                              final fecha =
-                                  DateTime.parse(c['fecha']);
-                              return ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Colors.blue.withOpacity(0.1),
-                                    borderRadius:
-                                        BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                      Icons.account_balance,
-                                      color: Colors.blue,
-                                      size: 20),
-                                ),
-                                title: Text(
-                                  c['descripcion'] ?? '',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  '${fecha.day}/${fecha.month}/${fecha.year}',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Gs. ${formatGs((c['monto'] ?? 0).toDouble())}',
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                          Icons.delete_outline,
-                                          color: Colors.grey,
-                                          size: 20),
-                                      onPressed: () =>
-                                          _service.eliminarCapital(
-                                              c['id']),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                        _listaIngresos(capitalPeriodo.skip(_paginaIngresos * _itemsPorPagina).take(_itemsPorPagina).toList()),
+                        _paginador(total: capitalPeriodo.length, paginaActual: _paginaIngresos, onCambiar: (p) => setState(() => _paginaIngresos = p)),
+
+
+
+
+
                       ],
                     ],
                   ),

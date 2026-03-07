@@ -441,18 +441,18 @@ class _DashboardContentState extends State<DashboardContent> {
           pageHeader('BIENVENIDO BN24py', context),
           isMobile
             ? Column(children: [
-                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue),
+                _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanzasScreen()))),
                 const SizedBox(height: 8),
-                _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange),
+                _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertasStockScreen()))),
                 const SizedBox(height: 8),
-                _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple),
+                _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(body: SafeArea(child: const ProductosScreen()))))),
               ])
             : Row(children: [
-                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue)),
+                Expanded(child: _tarjeta('Ventas del Mes', _cargando ? '...' : 'Gs. ${formatGs(_ventasMes)}', Icons.trending_up, Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinanzasScreen())))),
                 const SizedBox(width: 16),
-                Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange)),
+                Expanded(child: _tarjeta('Stock Bajo', _cargando ? '...' : '$_stockBajo', Icons.warning, Colors.orange, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertasStockScreen())))),
                 const SizedBox(width: 16),
-                Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple)),
+                Expanded(child: _tarjeta('Productos', _cargando ? '...' : '$_totalProductos', Icons.inventory, Colors.purple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(body: SafeArea(child: const ProductosScreen())))))),
               ]),
           const SizedBox(height: 24),
         isMobile
@@ -495,28 +495,31 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-  Widget _tarjeta(String titulo, String valor, IconData icono, Color color) {
+  Widget _tarjeta(String titulo, String valor, IconData icono, Color color, {VoidCallback? onTap}) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icono, color: color, size: 32),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(titulo, style: const TextStyle(color: Colors.grey, fontSize: 12), overflow: TextOverflow.ellipsis),
-                  Text(valor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis),
-                ],
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(icono, color: color, size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(titulo, style: const TextStyle(color: Colors.grey, fontSize: 12), overflow: TextOverflow.ellipsis),
+                    Text(valor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
