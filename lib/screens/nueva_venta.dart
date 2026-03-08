@@ -85,7 +85,13 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
     });
   }
 
+  static const String _codigoServicioLibre = '100';
+
   void _agregarProducto(Producto producto) {
+    if (producto.codigo == _codigoServicioLibre) {
+      _mostrarMontoLibre(producto);
+      return;
+    }
     setState(() {
       final index = _items.indexWhere((i) => i.productoId == producto.id);
       if (index >= 0) {
@@ -129,6 +135,50 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
       _productosFiltrados = [];
       _buscarProductoController.clear();
     });
+  }
+void _mostrarMontoLibre(Producto producto) {
+    final montoCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Servicios Prestados'),
+        content: TextField(
+          controller: montoCtrl,
+          keyboardType: TextInputType.number,
+          inputFormatters: [MilesFormatter()],
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Monto (Gs.)',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.attach_money, color: Color(0xFF1E88E5)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E88E5)),
+            onPressed: () {
+              final monto = double.tryParse(montoCtrl.text.replaceAll('.', '')) ?? 0;
+              if (monto <= 0) return;
+              Navigator.pop(context);
+              setState(() {
+                _items.add(ItemVenta(
+                  productoId: producto.id,
+                  codigo: producto.codigo,
+                  nombre: producto.nombre,
+                  cantidad: 1,
+                  precioUnitario: monto,
+                  stockDisponible: 0,
+                ));
+                _productosFiltrados = [];
+                _buscarProductoController.clear();
+              });
+            },
+            child: const Text('Agregar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _actualizarCantidad(int index, int cantidad) {
