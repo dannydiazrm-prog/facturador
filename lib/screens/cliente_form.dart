@@ -108,7 +108,7 @@ void _guardar() async {
           controller: scrollCtrl,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
               // Header
               Row(

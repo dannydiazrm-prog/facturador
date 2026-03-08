@@ -105,8 +105,8 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
           child: SingleChildScrollView(
             controller: scrollCtrl,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
             children: [
               // Header
               Row(
