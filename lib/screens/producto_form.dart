@@ -89,16 +89,22 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.85,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (_, scrollCtrl) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            controller: scrollCtrl,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -360,6 +366,7 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
             ],
           ),
         ),
+      ),
       ),
     );
   }
