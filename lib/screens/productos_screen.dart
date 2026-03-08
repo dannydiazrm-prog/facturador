@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:io';
 import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
@@ -22,6 +23,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
   String _filtro = '';
   String _tipoFiltro = 'Todos';
 
+  bool get _esEscritorio => kIsWeb || (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux));
+
   @override
   void dispose() {
     _buscarCtrl.dispose();
@@ -29,7 +32,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
   }
 
   void _abrirFormulario({Producto? producto}) async {
-    if (kIsWeb) {
+    if (_esEscritorio) {
       await showDialog(
         context: context,
         builder: (context) => Dialog(
@@ -55,7 +58,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
     final content = Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: kIsWeb ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: _esEscritorio ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -73,7 +76,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                   ],
                 ),
               ),
-              if (kIsWeb)
+              if (_esEscritorio)
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.grey),
                   onPressed: () => Navigator.pop(context),
@@ -119,7 +122,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
       ),
     );
 
-    if (kIsWeb) {
+    if (_esEscritorio) {
       showDialog(
         context: context,
         builder: (context) => Dialog(

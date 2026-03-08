@@ -2,6 +2,7 @@ import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/cliente.dart';
 import '../services/firestore_service.dart';
 import 'cliente_form.dart';
@@ -18,6 +19,8 @@ class _ClientesScreenState extends State<ClientesScreen> {
   final _buscarCtrl = TextEditingController();
   String _filtro = '';
 
+  bool get _esEscritorio => kIsWeb || (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux));
+
   @override
   void dispose() {
     _buscarCtrl.dispose();
@@ -25,7 +28,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
   }
 
   void _abrirEditar(Cliente cliente) async {
-    if (kIsWeb) {
+    if (_esEscritorio) {
       await showDialog(
         context: context,
         builder: (context) => Dialog(
@@ -113,7 +116,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
   }
 
   void _mostrarOpciones(Cliente cliente) {
-    if (kIsWeb) {
+    if (_esEscritorio) {
       showDialog(
         context: context,
         builder: (context) => Dialog(
