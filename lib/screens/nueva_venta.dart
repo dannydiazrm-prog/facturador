@@ -291,7 +291,7 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'RUC o CI del cliente',
+                          labelText: 'Numero o Nombre del cliente',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.search),
                         ),

@@ -7,15 +7,28 @@ class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // CLIENTES
-  Future<Cliente?> buscarClientePorRucCi(String rucCi) async {
-    if (rucCi == '1') return Cliente.mostrador();
-    final snap = await _db
-        .collection('clientes')
-        .where('rucCi', isEqualTo: rucCi)
-        .limit(1)
-        .get();
-    if (snap.docs.isEmpty) return null;
-    return Cliente.fromMap(snap.docs.first.id, snap.docs.first.data());
+  Future<Cliente?> buscarClientePorRucCi(String query) async {
+    if (query == '1') return Cliente.mostrador();
+    final q = query.trim();
+    final esNumero = RegExp(r'^[0-9.\-]+$').hasMatch(q);
+    if (esNumero) {
+      final snap = await _db
+          .collection('clientes')
+          .where('rucCi', isEqualTo: q)
+          .limit(1)
+          .get();
+      if (snap.docs.isEmpty) return null;
+      return Cliente.fromMap(snap.docs.first.id, snap.docs.first.data());
+    } else {
+      final snap = await _db
+          .collection('clientes')
+          .where('nombre', isGreaterThanOrEqualTo: q)
+          .where('nombre', isLessThan: q + '\uf8ff')
+          .limit(1)
+          .get();
+      if (snap.docs.isEmpty) return null;
+      return Cliente.fromMap(snap.docs.first.id, snap.docs.first.data());
+    }
   }
 
   Future<String> agregarCliente(Cliente cliente) async {

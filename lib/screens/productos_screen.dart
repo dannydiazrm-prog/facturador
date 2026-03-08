@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
@@ -28,81 +29,113 @@ class _ProductosScreenState extends State<ProductosScreen> {
   }
 
   void _abrirFormulario({Producto? producto}) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.9,
-        maxWidth: 600,
-      ),
-      builder: (context) => ProductoForm(productoExistente: producto),
-    );
+    if (kIsWeb) {
+      await showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: SizedBox(
+            width: 500,
+            child: ProductoForm(productoExistente: producto),
+          ),
+        ),
+      );
+    } else {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => ProductoForm(productoExistente: producto),
+      );
+    }
   }
 
   void _mostrarOpciones(Producto p) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.9,
-        maxWidth: 600,
+    final content = Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: kIsWeb ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(p.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
-            const SizedBox(height: 4),
-            Text('Stock actual: ${p.stock}', style: const TextStyle(color: Colors.grey)),
-            const Divider(height: 24),
-            ListTile(
-              leading: const Icon(Icons.edit, color: Color(0xFF1E88E5)),
-              title: const Text('Editar producto'),
-              onTap: () {
-                Navigator.pop(context);
-                _abrirFormulario(producto: p);
-              },
-            ),
-            if (!p.esServicio) ListTile(
-              leading: const Icon(Icons.add_circle, color: Colors.green),
-              title: const Text('Reponer stock'),
-              subtitle: const Text('Registra gasto en Finanzas'),
-              onTap: () {
-                Navigator.pop(context);
-                _dialogReponerStock(p);
-              },
-            ),
-            if (!p.esServicio) ListTile(
-              leading: const Icon(Icons.remove_circle, color: Colors.orange),
-              title: const Text('Dar de baja stock'),
-              subtitle: const Text('Productos dañados o perdidos'),
-              onTap: () {
-                Navigator.pop(context);
-                _dialogBajaStock(p);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Eliminar producto', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _confirmarEliminar(p);
-              },
-            ),
-          ],
-        ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A2744))),
+                    Text('Stock actual: ${p.stock}', style: const TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              ),
+              if (kIsWeb)
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey),
+                  onPressed: () => Navigator.pop(context),
+                ),
+            ],
+          ),
+          const Divider(height: 24),
+          ListTile(
+            leading: const Icon(Icons.edit, color: Color(0xFF1E88E5)),
+            title: const Text('Editar producto'),
+            onTap: () {
+              Navigator.pop(context);
+              _abrirFormulario(producto: p);
+            },
+          ),
+          if (!p.esServicio) ListTile(
+            leading: const Icon(Icons.add_circle, color: Colors.green),
+            title: const Text('Reponer stock'),
+            subtitle: const Text('Registra gasto en Finanzas'),
+            onTap: () {
+              Navigator.pop(context);
+              _dialogReponerStock(p);
+            },
+          ),
+          if (!p.esServicio) ListTile(
+            leading: const Icon(Icons.remove_circle, color: Colors.orange),
+            title: const Text('Dar de baja stock'),
+            subtitle: const Text('Productos dañados o perdidos'),
+            onTap: () {
+              Navigator.pop(context);
+              _dialogBajaStock(p);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text('Eliminar producto', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              _confirmarEliminar(p);
+            },
+          ),
+        ],
       ),
     );
+
+    if (kIsWeb) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: SizedBox(width: 500, child: content),
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => content,
+      );
+    }
   }
 
   void _dialogReponerStock(Producto p) {
@@ -123,16 +156,12 @@ class _ProductosScreenState extends State<ProductosScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4F6FA),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xFFF4F6FA), borderRadius: BorderRadius.circular(8)),
                     child: Row(
                       children: [
                         const Icon(Icons.info_outline, color: Color(0xFF1E88E5), size: 16),
                         const SizedBox(width: 8),
-                        Text('Última compra: Gs. ${formatGs(p.precioCompra)} c/u',
-                            style: const TextStyle(fontSize: 13, color: Color(0xFF1A2744))),
+                        Text('Última compra: Gs. ${formatGs(p.precioCompra)} c/u', style: const TextStyle(fontSize: 13, color: Color(0xFF1A2744))),
                       ],
                     ),
                   ),
@@ -173,11 +202,9 @@ class _ProductosScreenState extends State<ProductosScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.green.shade300),
                 ),
-                child: Text(
-                  'Costo total: Gs. ${formatGs(costoTotal)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15),
-                  textAlign: TextAlign.center,
-                ),
+                child: Text('Costo total: Gs. ${formatGs(costoTotal)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15),
+                    textAlign: TextAlign.center),
               ),
             ],
           ),
@@ -191,9 +218,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                 final costo = costoTotal;
                 if (cant <= 0) return;
 
-                await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
-                  'stock': p.stock + cant,
-                });
+                await FirebaseFirestore.instance.collection('productos').doc(p.id).update({'stock': p.stock + cant});
 
                 if (costo > 0) {
                   await FirebaseFirestore.instance.collection('gastos').add({
@@ -222,9 +247,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                     ),
                   );
                   if (actualizar == true) {
-                    await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
-                      'precioCompra': precioUnit,
-                    });
+                    await FirebaseFirestore.instance.collection('productos').doc(p.id).update({'precioCompra': precioUnit});
                   }
                 }
 
@@ -250,17 +273,11 @@ class _ProductosScreenState extends State<ProductosScreen> {
         content: TextField(
           controller: ctrl,
           obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Contraseña del administrador',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Contraseña del administrador', border: OutlineInputBorder()),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirmar'),
-          ),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Confirmar')),
         ],
       ),
     );
@@ -307,9 +324,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
               final cant = int.tryParse(cantCtrl.text) ?? 0;
               if (cant <= 0 || cant > p.stock) return;
               final perdida = cant * p.precioCompra;
-              await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
-                'stock': p.stock - cant,
-              });
+              await FirebaseFirestore.instance.collection('productos').doc(p.id).update({'stock': p.stock - cant});
               await FirebaseFirestore.instance.collection('gastos').add({
                 'descripcion': 'Baja de stock: ${p.nombre} ($cant unidades) - ${motivoCtrl.text}',
                 'monto': perdida,
@@ -330,12 +345,6 @@ class _ProductosScreenState extends State<ProductosScreen> {
   }
 
   void _confirmarEliminar(Producto p) async {
-    final ventas = await FirebaseFirestore.instance
-        .collection('ventas')
-        .where('items', arrayContains: {'productoId': p.id})
-        .limit(1)
-        .get();
-
     if (!p.esServicio && p.stock > 0) {
       showDialog(
         context: context,
