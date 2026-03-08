@@ -31,7 +31,12 @@ class _ProductosScreenState extends State<ProductosScreen> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxWidth: 600,
+      ),
       builder: (context) => ProductoForm(productoExistente: producto),
     );
   }
@@ -39,7 +44,13 @@ class _ProductosScreenState extends State<ProductosScreen> {
   void _mostrarOpciones(Producto p) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxWidth: 600,
+      ),
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,

@@ -27,7 +27,12 @@ class _ClientesScreenState extends State<ClientesScreen> {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxWidth: 600,
+      ),
       builder: (context) => ClienteForm(clienteExistente: cliente),
     );
     setState(() {});
@@ -102,7 +107,13 @@ class _ClientesScreenState extends State<ClientesScreen> {
   void _mostrarOpciones(Cliente cliente) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+        maxWidth: 600,
+      ),
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
