@@ -40,12 +40,21 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
   void _buscarCliente() async {
     if (_rucCiController.text.isEmpty) return;
     setState(() => _buscandoCliente = true);
-    final cliente = await _service.buscarClientePorRucCi(_rucCiController.text);
+    final query = _rucCiController.text.trim();
+    final esNumero = RegExp(r'^[0-9.\-]+$').hasMatch(query);
+    final cliente = await _service.buscarClientePorRucCi(query);
     setState(() => _buscandoCliente = false);
     if (cliente != null) {
       setState(() => _clienteSeleccionado = cliente);
-    } else {
+    } else if (esNumero) {
       _mostrarFormCliente();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se encontró ningún cliente con ese nombre'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 
