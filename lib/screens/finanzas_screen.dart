@@ -347,6 +347,111 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
     return true;
   }
 
+void _mostrarTutorialFinanzas() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        builder: (_, ctrl) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E88E5),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.menu_book, color: Colors.white),
+                        SizedBox(width: 10),
+                        Text('Guía de Finanzas', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: ctrl,
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    _TutorialSeccionFinanzas(
+                      numero: '1',
+                      titulo: 'Entendiendo el Resumen Principal',
+                      descripcion: 'En la pantalla de inicio verás indicadores clave:',
+                      items: [
+                        'Estado Actual: El recuadro grande te indica si tienes un balance positivo o negativo en el periodo seleccionado.',
+                        'Ingresos y Gastos: El total de dinero que entró por ventas vs. el total que salió.',
+                        'Saldo en Caja: El efectivo real que deberías tener disponible.',
+                        'Capital Inyectado: Dinero propio o externo que pusiste en el negocio (no es una venta).',
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    _TutorialSeccionFinanzas(
+                      numero: '2',
+                      titulo: 'Cómo Registrar un Nuevo Gasto',
+                      descripcion: 'Cada vez que compres insumos o pagues un servicio:',
+                      items: [
+                        'Tocá el botón Nuevo Gasto.',
+                        'Seleccioná la Categoría: Insumos, Salario, Servicios u Otros.',
+                        'Descripción: Escribí qué compraste (ej: "Compra de cartuchos").',
+                        'Monto: Ingresá el valor total en Guaraníes.',
+                        '⚙️ Nota: Los gastos Automáticos se generan solos cuando realizás una venta que descuenta stock.',
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    _TutorialSeccionFinanzas(
+                      numero: '3',
+                      titulo: 'Cómo Agregar Ingresos o Capital',
+                      descripcion: 'Si metés dinero al negocio o recibís un ingreso extra:',
+                      items: [
+                        'Tocá el botón Agregar Ingreso.',
+                        'Capital Inyectado: Es dinero que metes al negocio, no generado por el mismo.',
+                        'Ganancia Extra: Si es un ingreso por fuera de tus ventas habituales.',
+                        'Poné una descripción clara (ej: "Aporte para mercaderías").',
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    _TutorialSeccionFinanzas(
+                      numero: '4',
+                      titulo: 'Revisión de Historial',
+                      descripcion: 'Desplazate hacia abajo para ver:',
+                      items: [
+                        'Gastos del Periodo: Para controlar en qué se está yendo el dinero.',
+                        'Ingresos del Periodo: Para saber cuánto dinero has invertido o recibido.',
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    _TipFinanzas(texto: 'Registrá todo al instante: No esperes que finalice el día para anotar los gastos pequeños; así tu Saldo en Caja siempre será exacto.'),
+                    SizedBox(height: 8),
+                    _TipFinanzas(texto: 'Usá las gráficas: El gráfico de ventas por mes te ayudará a identificar cuáles son tus mejores épocas.'),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
   void _mostrarAgregarGasto() {
     final montoCtrl = TextEditingController();
     final descripCtrl = TextEditingController();
@@ -779,7 +884,16 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                                            pageHeader('FINANZAS', context),
+                                            Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          pageHeader('FINANZAS', context),
+                          IconButton(
+                            icon: const Icon(Icons.help_outline, color: Color(0xFF1E88E5), size: 28),
+                            onPressed: _mostrarTutorialFinanzas,
+                          ),
+                        ],
+                      ),
 
 
                       // Selector período
@@ -1285,6 +1399,72 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                       fontWeight: FontWeight.bold, fontSize: 15)),
             ],
           ),
+        ],
+      ),
+    );
+  }
+  
+}
+class _TutorialSeccionFinanzas extends StatelessWidget {
+  final String numero;
+  final String titulo;
+  final String descripcion;
+  final List<String> items;
+  const _TutorialSeccionFinanzas({required this.numero, required this.titulo, required this.descripcion, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F6FA),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28, height: 28,
+                decoration: const BoxDecoration(color: Color(0xFF1E88E5), shape: BoxShape.circle),
+                child: Center(child: Text(numero, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1A2744)))),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(descripcion, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 8),
+          ...items.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(item, style: const TextStyle(fontSize: 13, color: Color(0xFF1A2744))),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class _TipFinanzas extends StatelessWidget {
+  final String texto;
+  const _TipFinanzas({required this.texto});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.amber.shade200),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('💡 ', style: TextStyle(fontSize: 16)),
+          Expanded(child: Text(texto, style: const TextStyle(fontSize: 13, color: Color(0xFF1A2744)))),
         ],
       ),
     );

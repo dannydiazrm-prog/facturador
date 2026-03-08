@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/responsive.dart';
 import "../widgets/page_header.dart";
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/producto.dart';
 import '../services/firestore_service.dart';
 import 'producto_form.dart';
@@ -94,57 +96,173 @@ class _ProductosScreenState extends State<ProductosScreen> {
 
   void _dialogReponerStock(Producto p) {
     final cantCtrl = TextEditingController();
-    final costoCtrl = TextEditingController();
+    final precioUnitCtrl = TextEditingController(text: p.precioCompra > 0 ? p.precioCompra.toStringAsFixed(0) : '');
+    double costoTotal = 0;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reponer Stock'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: cantCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Cantidad a agregar', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: costoCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Costo total pagado (Gs.)', border: OutlineInputBorder()),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Reponer Stock'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (p.precioCompra > 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF4F6FA),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline, color: Color(0xFF1E88E5), size: 16),
+                        const SizedBox(width: 8),
+                        Text('Última compra: Gs. ${formatGs(p.precioCompra)} c/u',
+                            style: const TextStyle(fontSize: 13, color: Color(0xFF1A2744))),
+                      ],
+                    ),
+                  ),
+                ),
+              TextField(
+                controller: cantCtrl,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(labelText: 'Cantidad a agregar', border: OutlineInputBorder()),
+                onChanged: (v) {
+                  final cant = int.tryParse(v) ?? 0;
+                  final precio = double.tryParse(precioUnitCtrl.text.replaceAll('.', '')) ?? 0;
+                  setDialogState(() => costoTotal = cant * precio);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: precioUnitCtrl,
+                keyboardType: TextInputType.number,
+                inputFormatters: [MilesFormatter()],
+                decoration: const InputDecoration(
+                  labelText: 'Precio unitario (Gs.)',
+                  border: OutlineInputBorder(),
+                  helperText: 'Podés modificarlo si cambió el precio',
+                ),
+                onChanged: (v) {
+                  final cant = int.tryParse(cantCtrl.text) ?? 0;
+                  final precio = double.tryParse(v.replaceAll('.', '')) ?? 0;
+                  setDialogState(() => costoTotal = cant * precio);
+                },
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.shade300),
+                ),
+                child: Text(
+                  'Costo total: Gs. ${formatGs(costoTotal)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () async {
+                final cant = int.tryParse(cantCtrl.text) ?? 0;
+                final precioUnit = double.tryParse(precioUnitCtrl.text.replaceAll('.', '')) ?? 0;
+                final costo = costoTotal;
+                if (cant <= 0) return;
+
+                await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
+                  'stock': p.stock + cant,
+                });
+
+                if (costo > 0) {
+                  await FirebaseFirestore.instance.collection('gastos').add({
+                    'descripcion': 'Reposición stock: ${p.nombre} ($cant unidades)',
+                    'monto': costo,
+                    'categoria': 'Inventario',
+                    'fecha': DateTime.now().toIso8601String(),
+                    'automatico': true,
+                  });
+                }
+
+                if (precioUnit > 0 && precioUnit != p.precioCompra) {
+                  final actualizar = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Actualizar precio de compra'),
+                      content: Text('El precio unitario cambió a Gs. ${formatGs(precioUnit)}. ¿Querés actualizar el precio de compra del producto?'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E88E5)),
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Sí, actualizar', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (actualizar == true) {
+                    await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
+                      'precioCompra': precioUnit,
+                    });
+                  }
+                }
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Stock actualizado: +$cant unidades'), backgroundColor: Colors.green),
+                );
+              },
+              child: const Text('Reponer', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<bool> _pedirContrasena() async {
+    final ctrl = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar acción'),
+        content: TextField(
+          controller: ctrl,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Contraseña del administrador',
+            border: OutlineInputBorder(),
+          ),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed: () async {
-              final cant = int.tryParse(cantCtrl.text) ?? 0;
-              final costo = double.tryParse(costoCtrl.text) ?? 0;
-              if (cant <= 0) return;
-              await FirebaseFirestore.instance.collection('productos').doc(p.id).update({
-                'stock': p.stock + cant,
-              });
-              if (costo > 0) {
-                await FirebaseFirestore.instance.collection('gastos').add({
-                  'descripcion': 'Reposición stock: ${p.nombre} ($cant unidades)',
-                  'monto': costo,
-                  'categoria': 'Inventario',
-                  'fecha': DateTime.now().toIso8601String(),
-                  'automatico': true,
-                });
-              }
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Stock actualizado: +$cant unidades'), backgroundColor: Colors.green),
-              );
-            },
-            child: const Text('Reponer', style: TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirmar'),
           ),
         ],
       ),
     );
+    if (result != true) return false;
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final cred = EmailAuthProvider.credential(email: user.email!, password: ctrl.text);
+      await user.reauthenticateWithCredential(cred);
+      return true;
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contraseña incorrecta'), backgroundColor: Colors.red));
+      return false;
+    }
   }
 
   void _dialogBajaStock(Producto p) {
