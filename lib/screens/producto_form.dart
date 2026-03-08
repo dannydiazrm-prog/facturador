@@ -56,7 +56,6 @@ class _ProductoFormState extends State<ProductoForm> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _guardando = true);
 
-    final esNuevo = widget.productoExistente == null;
     final stockAnterior = widget.productoExistente?.stock ?? 0;
     final stockNuevo = _esServicio ? 0 : int.parse(_stockCtrl.text.trim());
     final diferencia = stockNuevo - stockAnterior;
@@ -68,13 +67,12 @@ class _ProductoFormState extends State<ProductoForm> {
       esServicio: _esServicio,
       stock: stockNuevo,
       stockMinimo: _esServicio ? 0 : int.parse(_stockMinimoCtrl.text.trim()),
-precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().replaceAll('.', '')),
+      precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().replaceAll('.', '')),
       precio: double.parse(_precioVentaCtrl.text.trim().replaceAll('.', '')),
     );
 
     await _service.agregarProducto(producto);
 
-    // Registrar gasto automático si hay stock nuevo
     if (!_esServicio && diferencia > 0) {
       await _service.registrarGastoMercaderia(
         _nombreCtrl.text.trim(),
@@ -89,26 +87,24 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.85,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
-      builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            controller: scrollCtrl,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -124,9 +120,7 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        widget.productoExistente != null
-                            ? 'EDITAR PRODUCTO'
-                            : 'NUEVO PRODUCTO',
+                        widget.productoExistente != null ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -143,8 +137,6 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
               ),
               const Divider(),
               const SizedBox(height: 16),
-
-              // Tipo producto/servicio
               const Text(
                 'Tipo',
                 style: TextStyle(
@@ -163,32 +155,18 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: !_esServicio
-                              ? const Color(0xFF1E88E5)
-                              : const Color(0xFFF4F6FA),
+                          color: !_esServicio ? const Color(0xFF1E88E5) : const Color(0xFFF4F6FA),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: !_esServicio
-                                ? const Color(0xFF1E88E5)
-                                : Colors.grey.shade300,
+                            color: !_esServicio ? const Color(0xFF1E88E5) : Colors.grey.shade300,
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.inventory_2,
-                              color: !_esServicio ? Colors.white : Colors.grey,
-                              size: 18,
-                            ),
+                            Icon(Icons.inventory_2, color: !_esServicio ? Colors.white : Colors.grey, size: 18),
                             const SizedBox(width: 8),
-                            Text(
-                              'Producto',
-                              style: TextStyle(
-                                color: !_esServicio ? Colors.white : Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            Text('Producto', style: TextStyle(color: !_esServicio ? Colors.white : Colors.grey, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -200,32 +178,18 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: _esServicio
-                              ? const Color(0xFF1E88E5)
-                              : const Color(0xFFF4F6FA),
+                          color: _esServicio ? const Color(0xFF1E88E5) : const Color(0xFFF4F6FA),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: _esServicio
-                                ? const Color(0xFF1E88E5)
-                                : Colors.grey.shade300,
+                            color: _esServicio ? const Color(0xFF1E88E5) : Colors.grey.shade300,
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.build,
-                              color: _esServicio ? Colors.white : Colors.grey,
-                              size: 18,
-                            ),
+                            Icon(Icons.build, color: _esServicio ? Colors.white : Colors.grey, size: 18),
                             const SizedBox(width: 8),
-                            Text(
-                              'Servicio',
-                              style: TextStyle(
-                                color: _esServicio ? Colors.white : Colors.grey,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            Text('Servicio', style: TextStyle(color: _esServicio ? Colors.white : Colors.grey, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -234,16 +198,12 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                 ],
               ),
               const SizedBox(height: 20),
-
-              // Código
               _campo(
                 controller: _codigoCtrl,
                 label: 'Código *',
                 icono: Icons.qr_code,
                 maxLength: 20,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
-                ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'El código es obligatorio';
                   if (v.trim().length < 2) return 'Mínimo 2 caracteres';
@@ -251,8 +211,6 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                 },
               ),
               const SizedBox(height: 16),
-
-              // Nombre
               _campo(
                 controller: _nombreCtrl,
                 label: 'Nombre del producto *',
@@ -265,8 +223,6 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                 },
               ),
               const SizedBox(height: 16),
-
-              // Campos solo para productos
               if (!_esServicio) ...[
                 Row(
                   children: [
@@ -316,8 +272,6 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                 ),
                 const SizedBox(height: 16),
               ],
-
-              // Precio de venta
               _campo(
                 controller: _precioVentaCtrl,
                 label: 'Precio de venta (Gs.) *',
@@ -331,17 +285,13 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                 },
               ),
               const SizedBox(height: 24),
-
-              // Botón guardar
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1E88E5),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: _guardando ? null : _guardar,
                   child: _guardando
@@ -351,22 +301,15 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
                           children: [
                             Icon(Icons.save, color: Colors.white),
                             SizedBox(width: 8),
-                            Text(
-                              'GUARDAR PRODUCTO',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text('GUARDAR PRODUCTO', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                           ],
                         ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
-      ),
       ),
     );
   }
@@ -389,9 +332,7 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icono, color: const Color(0xFF1E88E5)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 2),

@@ -56,7 +56,7 @@ class _ClienteFormState extends State<ClienteForm> {
     super.dispose();
   }
 
-void _guardar() async {
+  void _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _guardando = true);
 
@@ -86,12 +86,7 @@ void _guardar() async {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.85,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
-      builder: (_, scrollCtrl) => Container(
+    return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -100,17 +95,15 @@ void _guardar() async {
         left: 24,
         right: 24,
         top: 24,
-      bottom: MediaQuery.of(context).viewInsets.bottom + 24 < 24 ? 24 : MediaQuery.of(context).viewInsets.bottom + 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          controller: scrollCtrl,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -122,16 +115,11 @@ void _guardar() async {
                           color: const Color(0xFF1E88E5).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
-                          Icons.person_add,
-                          color: Color(0xFF1E88E5),
-                        ),
+                        child: const Icon(Icons.person_add, color: Color(0xFF1E88E5)),
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        widget.clienteExistente != null
-                            ? 'EDITAR CLIENTE'
-                            : 'NUEVO CLIENTE',
+                        widget.clienteExistente != null ? 'EDITAR CLIENTE' : 'NUEVO CLIENTE',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -149,8 +137,6 @@ void _guardar() async {
               const SizedBox(height: 8),
               const Divider(),
               const SizedBox(height: 16),
-
-              // Tipo contribuyente
               const Text(
                 'Tipo de Contribuyente',
                 style: TextStyle(
@@ -170,14 +156,10 @@ void _guardar() async {
                         margin: EdgeInsets.only(right: tipo == 'Física' ? 8 : 0),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: seleccionado
-                              ? const Color(0xFF1E88E5)
-                              : const Color(0xFFF4F6FA),
+                          color: seleccionado ? const Color(0xFF1E88E5) : const Color(0xFFF4F6FA),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: seleccionado
-                                ? const Color(0xFF1E88E5)
-                                : Colors.grey.shade300,
+                            color: seleccionado ? const Color(0xFF1E88E5) : Colors.grey.shade300,
                           ),
                         ),
                         child: Row(
@@ -204,8 +186,6 @@ void _guardar() async {
                 }).toList(),
               ),
               const SizedBox(height: 20),
-
-              // Nombre
               _campo(
                 controller: _nombreCtrl,
                 label: 'Nombre completo *',
@@ -218,17 +198,13 @@ void _guardar() async {
                 },
               ),
               const SizedBox(height: 16),
-
-              // RUC o CI
               _campo(
                 controller: _rucCiCtrl,
                 label: 'RUC o CI *',
                 icono: Icons.fingerprint,
                 maxLength: 15,
                 keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
-                ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]'))],
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'El RUC o CI es obligatorio';
                   if (v.trim().length < 6) return 'Mínimo 6 caracteres';
@@ -236,8 +212,6 @@ void _guardar() async {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Correo
               _campo(
                 controller: _correoCtrl,
                 label: 'Correo electrónico (opcional)',
@@ -252,8 +226,6 @@ void _guardar() async {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Teléfono
               _campo(
                 controller: _telefonoCtrl,
                 label: 'Teléfono (opcional)',
@@ -263,8 +235,6 @@ void _guardar() async {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 16),
-
-              // Dirección
               _campo(
                 controller: _direccionCtrl,
                 label: 'Dirección (opcional)',
@@ -272,17 +242,13 @@ void _guardar() async {
                 maxLength: 50,
               ),
               const SizedBox(height: 24),
-
-              // Botón guardar
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1E88E5),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: _guardando ? null : _guardar,
                   child: _guardando
@@ -294,23 +260,20 @@ void _guardar() async {
                             SizedBox(width: 8),
                             Text(
                               'GUARDAR CLIENTE',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
-     ),
       ),
-      );
+    );
   }
+
   Widget _campo({
     required TextEditingController controller,
     required String label,
@@ -329,9 +292,7 @@ void _guardar() async {
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icono, color: const Color(0xFF1E88E5)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 2),
