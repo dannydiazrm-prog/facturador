@@ -292,6 +292,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             onPressed: () async {
+              if (!await _pedirContrasena()) return;
               final cant = int.tryParse(cantCtrl.text) ?? 0;
               if (cant <= 0 || cant > p.stock) return;
               final perdida = cant * p.precioCompra;

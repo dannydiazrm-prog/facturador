@@ -98,7 +98,6 @@ precioCompra: _esServicio ? 0 : double.parse(_precioCompraCtrl.text.trim().repla
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
-      padding: Responsive.pagePadding(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
