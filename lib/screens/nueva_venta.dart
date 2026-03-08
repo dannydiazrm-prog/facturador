@@ -286,10 +286,8 @@ class _NuevaVentaScreenState extends State<NuevaVentaScreen> {
                     Expanded(
                       child: TextField(
                         controller: _rucCiController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.\-]')),
-                        ],
+                        keyboardType: TextInputType.text,
+                        inputFormatters: [],
                         decoration: const InputDecoration(
                           labelText: 'Numero o Nombre del cliente',
                           border: OutlineInputBorder(),
