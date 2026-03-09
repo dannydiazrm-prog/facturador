@@ -1,5 +1,3 @@
-name: Build APK
-
 on:
   push:
     branches: [ main ]
@@ -8,7 +6,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,3 +23,17 @@ jobs:
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5'
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: build/windows/x64/runner/Release/
